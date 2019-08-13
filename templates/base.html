@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <title>Ratings</title>
+
+  {% if session['user_id'] %}
+  <form action="/logout">
+      <button type="submit">Logout</button>
+  </form>
+  {% endif %}
+
+</head>
+
+<body>
+
+
+<!-- Show flashed messages -->
+  {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+          <div class="alert alert-warning">{{ message }}</div>
+      {% endfor %}
+  {% endwith %}
+
+  Ratings
+  <hr>
+
+  {% block content %} put your content here {% endblock %}
+
+</body>
+</html>

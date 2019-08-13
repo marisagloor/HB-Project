@@ -23,6 +23,8 @@ class User(db.Model):
     # email = db.Column(db.String(64))
     # password = db.Column(db.String(64), nullable=True)
 
+
+
     def __repr__(self):
             """show info about user"""
             return f"<User user_id={self.user_id} name={self.name}>"
@@ -33,12 +35,23 @@ class BaseWorkout(db.Model):
     __tablename__ = "base_workouts"
 
     cat_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     title = db.Column(db.String, nullable=False)
-    # json dictionary days of the week + True False
+
     # scheduling_rest = db.Column(db.String(77), nullable=False)
     repetition = db.Column(db.Boolean, nullable=False)
     t_restriction = db.Column(db.Boolean, nullable=False)
     d_restriction = db.Column(db.Boolean, nullable=False)
+
+    mon = db.Column(db.Boolean, nullable=False)
+    tues = db.Column(db.Boolean, nullable=False)
+    wed = db.Column(db.Boolean, nullable=False)
+    thurs = db.Column(db.Boolean, nullable=False)
+    fri = db.Column(db.Boolean, nullable=False)
+    sat = db.Column(db.Boolean, nullable=False)
+    sun = db.Column(db.Boolean, nullable=False)
+
+    user = db.relationship("User", backref="base_workouts")
 
     def __repr__(self):
             """show info about user"""
@@ -72,17 +85,19 @@ class Workout(db.Model):
     user = db.relationship("User",
                                backref=db.backref("ratings",
                                                   order_by=rating_id))
+    calendar = db.relationship("Calendar",
+                               backref=db.backref("workouts",
+                                                  order_by=workout.occurence))
 
     def __repr__(self):
             """show info about user"""
             return f"<Workout workout_id={self.workout_id} name={self.name}>"
     
 
-
 class CompletedWorkout(db.Model):
     """Ratings of movies by users"""
 
-    __tablename__ = "relsults"
+    __tablename__ = "results"
 
     result_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     workout_id = db.Column(db.Integer, db.ForeignKey('workouts.workout_id'))
@@ -92,38 +107,21 @@ class CompletedWorkout(db.Model):
     layout = db.Column(db.Integer, nullable=True)
     enter_date = db.Column(db.DateTime, nullable=False)
 
+
+    workout = db.relationship("Workout", backref="result")
+
     user = db.relationship("User",
-                               backref=db.backref("ratings",
-                                                  order_by=rating_id))
-    movie = db.relationship("Movie",
-                               backref=db.backref("ratings",
-                                                  order_by=rating_id))
+                               backref=db.backref("results",
+                                                  order_by=workout.occurence))
+    calendar = db.relationship("Calendar",
+                               backref=db.backref("results",
+                                                  order_by=workout.occurence))
+    
 
     def __repr__(self):
     """show info about completed workout"""
-    return f"<CompletedWorkout result_id={self.result_id} entered={self.enter_date}>"
+    return f"<CompletedWorkout result_id={self.result_id} scheduled={workout.occurence} entered={self.enter_date}>"
 
-
-class week(db.Model):
-    """Workouts available for days of the week"""
-
-    __tablename__ = "days"
-
-    week = db.Column(db.DateTime, autoincriment=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    cat_id = db.Column(db.Integer, db.ForeignKey('base_workouts.cat_id'))
-    frequency = db.Column(db.Integer, nullable=False)
-    # per month
-
-    mon = db.Column(db.Boolean, nullable=False)
-    tues = db.Column(db.Boolean, nullable=False)
-    wed = db.Column(db.Boolean, nullable=False)
-    thurs = db.Column(db.Boolean, nullable=False)
-    fri = db.Column(db.Boolean, nullable=False)
-    sat = db.Column(db.Boolean, nullable=False)
-    sun = db.Column(db.Boolean, nullable=False)
-
-    # backref to workouts through base_workouts
 
 class Calendar(db.Model):
     """Ratings of movies by users"""
@@ -131,24 +129,22 @@ class Calendar(db.Model):
     __tablename__ = "calendars"
 
     calendar_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))
-    # user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    score = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    # json dict of workout instances- OR- list of workout instances
+    workouts = db.Column(db.Integer, nullable=False)
+    # NULLABLE???
+    start_date = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship("User",
-                               backref=db.backref("ratings",
-                                                  order_by=rating_id))
-    movie = db.relationship("Movie",
-                               backref=db.backref("ratings",
-                                                  order_by=rating_id))
+                               backref=db.backref("calencars",
+                                                  order_by=start_date))
 
     def __repr__(self):
             """Provide helpful representation when printed."""
 
-            return f"""<Rating rating_id={self.rating_id} 
-                       movie_id={self.movie_id} 
+            return f"""<Calendar id={self.rating_id} 
                        user_id={self.user_id} 
-                       score={self.score}>"""
+                       start_date={self.start_date}>"""
 
 
 
@@ -162,7 +158,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///ratings'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///runners'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
@@ -176,3 +172,4 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print("Connected to DB.")
+
