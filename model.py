@@ -1,12 +1,13 @@
 """Models and database functions for running project."""
-
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
 # object, where we do most of our interactions (like committing, etc.)
 
 db = SQLAlchemy()
-
+app = Flask(__name__)
+app.secret_key = "scrtscrt"
 
 ##############################################################################
 # Model definitions
@@ -83,11 +84,12 @@ class Workout(db.Model):
 
 
     user = db.relationship("User",
-                               backref=db.backref("ratings",
-                                                  order_by=rating_id))
-    calendar = db.relationship("Calendar",
                                backref=db.backref("workouts",
-                                                  order_by=workout.occurence))
+                                                  order_by=occurence))
+    # calendar = db.relationship("Calendar",
+    #                             secondary="users",
+    #                             backref=db.backref("workouts",
+    #                                               order_by=occurence))
 
     def __repr__(self):
             """show info about user"""
@@ -112,15 +114,15 @@ class CompletedWorkout(db.Model):
 
     user = db.relationship("User",
                                backref=db.backref("results",
-                                                  order_by=workout.occurence))
+                                                  order_by=enter_date))
     calendar = db.relationship("Calendar",
                                backref=db.backref("results",
-                                                  order_by=workout.occurence))
+                                                  order_by=enter_date))
     
 
     def __repr__(self):
-    """show info about completed workout"""
-    return f"<CompletedWorkout result_id={self.result_id} scheduled={workout.occurence} entered={self.enter_date}>"
+        """show info about completed workout"""
+        return f"<CompletedWorkout result_id={self.result_id} scheduled={workout.occurence} entered={self.enter_date}>"
 
 
 class Calendar(db.Model):
@@ -136,7 +138,7 @@ class Calendar(db.Model):
     start_date = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship("User",
-                               backref=db.backref("calencars",
+                               backref=db.backref("calendars",
                                                   order_by=start_date))
 
     def __repr__(self):
@@ -154,22 +156,35 @@ class Calendar(db.Model):
 ##############################################################################
 # Helper functions
 
-def connect_to_db(app):
-    """Connect the database to our Flask app."""
 
-    # Configure to use our PstgreSQL database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///runners'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def connect_to_db(app, db_name):
+    app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql:///{db_name}"
+    app.config["SQLALCHEMY_ECHO"] = True
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
     db.app = app
     db.init_app(app)
     db.create_all()
+    print("Connected to DB")
+
+connect_to_db(app, "runners")
+
+# def connect_to_db(app):
+#     """Connect the database to our Flask app."""
+
+#     # Configure to use our PstgreSQL database
+#     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///runners'
+#     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#     db.app = app
+#     db.init_app(app)
+#     db.create_all()
 
 
-if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
+# if __name__ == "__main__":
+#     # As a convenience, if we run this module interactively, it will leave
+#     # you in a state of being able to work with the database directly.
 
-    from server import app
-    connect_to_db(app)
-    print("Connected to DB.")
+#     from server import app
+#     connect_to_db(app)
+#     print("Connected to DB.")
 
