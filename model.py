@@ -19,10 +19,11 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(15), nullable=False)
+    password = db.Column(db.String(64), nullable=True)
     mile_count = db.Column(db.Integer, nullable=True)
     
     # email = db.Column(db.String(64))
-    # password = db.Column(db.String(64), nullable=True)
+    # 
 
 
 
@@ -159,15 +160,20 @@ class Calendar(db.Model):
 
 def connect_to_db(app, db_name):
     app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql:///{db_name}"
-    app.config["SQLALCHEMY_ECHO"] = True
+    # app.config["SQLALCHEMY_ECHO"] = True
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.app = app
     db.init_app(app)
     db.create_all()
+
+
+if __name__ == "__main__":
+
+    from server import app
+    connect_to_db(app, "runners")
     print("Connected to DB")
 
-connect_to_db(app, "runners")
 
 # def connect_to_db(app):
 #     """Connect the database to our Flask app."""

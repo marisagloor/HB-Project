@@ -1,9 +1,9 @@
 <!doctype html>
 <html>
 <head>
-  <title>Ratings</title>
+  <title>WORKOUT MY WORKOUT</title>
 
-  {% if session['user_id'] %}
+  {% if session['login_status'] == True %}
   <form action="/logout">
       <button type="submit">Logout</button>
   </form>
@@ -21,8 +21,8 @@
       {% endfor %}
   {% endwith %}
 
-  Ratings
-  <hr>
+  
+  
 
   {% block content %} put your content here {% endblock %}
 
