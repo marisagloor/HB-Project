@@ -59,53 +59,80 @@ def process_registration():
 
 
 @app.route('/add_workout_type', methods=['GET'])
-def add_base_wo_form():
+def ase_wo_form():
 
     return render_template('add_workout_type_form.html')
 
-# @app.route('/login', methods=['GET'])
-# def login_form():
 
-#     return render_template('login_form.html')
+@app.route('/add_workout_type', methods=['POST'])
+def add_base_wo_form():
+    title = request.form.get('title')
+    form = request.form.get('form')
+    days = [request.form.get(f'day{i}') for i in range(1, 8)]
 
+    user = User.query.get(session['user_id'])
+    
+    user.base_workouts.append(BaseWorkout(title=title, 
+                                form=form, mon=days[0], 
+                                tues=days[1], wed=days[2],
+                                thurs=days[3], fri=days[4], 
+                                sat=days[5], sun=days[6]))
+    db.session.commit()
 
-# @app.route('/logged_in', methods=['GET'])
-# def logged_in():
-#     user_id = request.args.get('user_id')
-#     password = request.args.get('password')
-
-#     try:
-#         # user = User.query.filter(User.email == email).one()
-#         user = User.query.get(user_id)
-
-#         if user.password == password:
-#         #flash message about success
-#             session['user_id'] = user.user_id
-#             flash("Login Successful")
-#             return redirect(f"/users/{user.user_id}")
-#         else:
-#             flash("Login Failed, invalid email or PASSWORD")
-#             return redirect('/login')
-#     except NoResultFound:
-#         flash("Login Failed, invalid EMAIL or password")
-#         return redirect('/login')
+    return redirect('/')
 
 
-# @app.route('/logout')
-# def logout():
-
-#     del session['user_id']
-
-#     return redirect('/')
+@app.route('/workout_types')
+def workout_types():
+    pass
 
 
-# @app.route('/users/<int:user_id>')
-# def user_detail(user_id):
+@app.route('/login')
+def login_form():
 
-#     user = User.query.get(user_id)
+    return render_template('login_page.html')
 
-#     return render_template('user_details.html',
-#                            user=user)
+
+@app.route('/check_login', methods=['GET'])
+def check_login():
+    name = request.args.get('name')
+    password = request.args.get('password')
+
+    try:
+        user = User.query.filter(User.name == name).one()
+        # user = User.query.get(user_id)
+
+        if user.password == password:
+        #flash message about success
+            session['user_id'] = user.user_id
+            session['login_status'] = True
+            flash("Login Successful")
+            # return redirect(f"/users/{user.user_id}")
+            return redirect('/')
+        else:
+            flash("Login Failed, invalid email or PASSWORD")
+            return redirect('/login')
+    except NoResultFound:
+        flash("Login Failed, invalid EMAIL or password")
+        return redirect('/login')
+
+
+@app.route('/logout')
+def logout():
+
+    del session['user_id']
+    session['login_status'] = False
+
+    return redirect('/')
+
+
+@app.route('/users/<int:user_id>')
+def user_detail(user_id):
+
+    user = User.query.get(user_id)
+
+    return render_template('user_details.html',
+                           user=user)
 
 
 # @app.route('/add_workout_type>', methods=['POST'])

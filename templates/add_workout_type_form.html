@@ -3,24 +3,36 @@
 <h1>New Workout Type</h1>
 
 {% if session['login_status'] == True %}
-    <form action="/add_workout_type/{{user.user_id}}" method="POST" required>
+    <form action="/add_workout_type" method="POST" required>
         Title: <input type="text" name="title" required><br><br>
-        is your workout formed with- repeats, total time, total distance?
             <p>Select the form of your workout:<p>
-            <select name="workout_form">
-                <option value="repetition"> Repeats </option>
-                <option value="t_restriction"> Total time </option>
-                <option value="d_restriction"> Total distance </option>
-            </select>   
-            
+        <select name="form">
+            <option value="01"> Repeat </option>
+            <option value="10"> Time </option>
+            <option value="11"> Distance </option>
+        </select>   
+        <p>Select days of the week these workouts will be scheduled on</p>
+        <input type="checkbox" name="day1" value="True">Monday<br>
+        <input type="hidden" name="day1" value="False" />
+        <input type="checkbox" name="day2" value=True>Tuesday<br>
+        <input type="hidden" name="day2" value="False" />
+        <input type="checkbox" name="day3" value=True>Wednesday<br>
+        <input type="hidden" name="day3" value="False" />
+        <input type="checkbox" name="day4" value=True>Thursday<br>
+        <input type="hidden" name="day4" value="False" />
+        <input type="checkbox" name="day5" value=True>Friday<br>
+        <input type="hidden" name="day5" value="False" />
+        <input type="checkbox" name="day6" value=True>Saturday<br>
+        <input type="hidden" name="day6" value="False" />
+        <input type="checkbox" name="day7" value=True>Sunday<br>
+        <input type="hidden" name="day7" value="False" />
 
-            <button type="submit">Rate</button>
-        
-        Password: <input type="text" name="password" required><br><br>
+
+        <button type="submit">ADD</button>
         
     </form>
 {% else %}
     <p>Please login to create a workout type</p>
-(% endif %)
+{% endif %}
 
 {% endblock %}

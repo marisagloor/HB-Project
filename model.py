@@ -38,20 +38,21 @@ class BaseWorkout(db.Model):
 
     cat_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    title = db.Column(db.String, nullable=False)
+    title = db.Column(db.String(30), nullable=False)
 
     # scheduling_rest = db.Column(db.String(77), nullable=False)
-    repetition = db.Column(db.Boolean, nullable=False)
-    t_restriction = db.Column(db.Boolean, nullable=False)
-    d_restriction = db.Column(db.Boolean, nullable=False)
+    # repetition = db.Column(db.Boolean, nullable=False)
+    # t_restriction = db.Column(db.Boolean, nullable=False)
+    # d_restriction = db.Column(db.Boolean, nullable=False)
+    form = db.Column(db.String(10), nullable=False)
 
-    mon = db.Column(db.Boolean, nullable=False)
-    tues = db.Column(db.Boolean, nullable=False)
-    wed = db.Column(db.Boolean, nullable=False)
-    thurs = db.Column(db.Boolean, nullable=False)
-    fri = db.Column(db.Boolean, nullable=False)
-    sat = db.Column(db.Boolean, nullable=False)
-    sun = db.Column(db.Boolean, nullable=False)
+    mon = db.Column(db.String, nullable=False)
+    tues = db.Column(db.String, nullable=False)
+    wed = db.Column(db.String, nullable=False)
+    thurs = db.Column(db.String, nullable=False)
+    fri = db.Column(db.String, nullable=False)
+    sat = db.Column(db.String, nullable=False)
+    sun = db.Column(db.String, nullable=False)
 
     user = db.relationship("User", backref="base_workouts")
 
@@ -75,8 +76,6 @@ class Workout(db.Model):
         warmup: Y/N time | distance
         component: time | distance
         repetition: n times
-        time_restric: wo time
-        dist_restric: wo distance
         cooldown: Y/N time | distance
 
     }"""
