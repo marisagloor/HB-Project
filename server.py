@@ -84,6 +84,7 @@ def add_base_wo_form():
 
 @app.route('/workout_types')
 def workout_types():
+    """Show all user's base_workouts"""
     pass
 
 
@@ -126,21 +127,14 @@ def logout():
     return redirect('/')
 
 
-@app.route('/users/<int:user_id>')
-def user_detail(user_id):
+# @app.route('/users/<int:user_id>')
+# def user_detail(user_id):
 
-    user = User.query.get(user_id)
-
-    return render_template('user_details.html',
-                           user=user)
-
-
-# @app.route('/add_workout_type>', methods=['POST'])
-# def rate_movie():
-#     user_id = session['user_id']
 #     user = User.query.get(user_id)
 
-#     return render_template('workout_types.html', user=user)
+#     return render_template('user_details.html',
+#                            user=user)
+
         
 
 

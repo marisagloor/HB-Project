@@ -1,6 +1,7 @@
 """Models and database functions for running project."""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import datetime
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
 # object, where we do most of our interactions (like committing, etc.)
@@ -21,31 +22,20 @@ class User(db.Model):
     name = db.Column(db.String(15), nullable=False)
     password = db.Column(db.String(64), nullable=True)
     mile_count = db.Column(db.Integer, nullable=True)
-    
-    # email = db.Column(db.String(64))
-    # 
-
-
-
+     
     def __repr__(self):
-            """show info about user"""
-            return f"<User user_id={self.user_id} name={self.name}>"
+        """show info about user"""
+        return f"<User user_id={self.user_id} name={self.name}>"
 
 
 class BaseWorkout(db.Model):
 
     __tablename__ = "base_workouts"
 
-    cat_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    bw_id = db.Column(db.Integer, autoincrement=True, primary_key=True)  
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     title = db.Column(db.String(30), nullable=False)
-
-    # scheduling_rest = db.Column(db.String(77), nullable=False)
-    # repetition = db.Column(db.Boolean, nullable=False)
-    # t_restriction = db.Column(db.Boolean, nullable=False)
-    # d_restriction = db.Column(db.Boolean, nullable=False)
-    form = db.Column(db.String(10), nullable=False)
-
+    form_code = db.Column(db.String, db.ForeignKey('form_codes.form_code'))
     mon = db.Column(db.String, nullable=False)
     tues = db.Column(db.String, nullable=False)
     wed = db.Column(db.String, nullable=False)
@@ -55,10 +45,24 @@ class BaseWorkout(db.Model):
     sun = db.Column(db.String, nullable=False)
 
     user = db.relationship("User", backref="base_workouts")
+    form_code = db.relationship("WorkoutForms", backref="base_workouts")
 
     def __repr__(self):
-            """show info about user"""
-            return f"<BaseWorkout cat_id={self.cat_id} type={self.title}>"
+        """show info about user"""
+        return f"<BaseWorkout bw_id={self.bw_id} type={self.title}>"
+
+
+class Form(db.Model):
+
+    __tablename__ = "form_codes"
+
+    form_code = db.Column(db.String, primary_key=True)
+    form_name = db.Column(db.String(10), nullable=False)
+
+    def __repr__(self):
+        """Show form_code information"""
+        return f"<Workout Forms form_code={self.form_code} form_type={self.form_type}>"
+
 
 
 class Workout(db.Model):
@@ -68,32 +72,33 @@ class Workout(db.Model):
 
     workout_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     name = db.Column(db.String(50), nullable=False)
-    cat_id = db.Column(db.Integer, db.ForeignKey('base_workouts.cat_id'))
+    bw_id = db.Column(db.Integer, db.ForeignKey('base_workouts.bw_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    calendar_id = db.Column(db.Integer, db.ForeignKey('calendars.calendar_id'))
     # json dictionary of wo frame + frame values
-    layout = db.Column(db.String, nullable=False)
+    layout = db.Column(db.MutableJson, nullable=False)  # make this JSON column type
     """{ 
-        warmup: Y/N time | distance
-        component: time | distance
+        warmup: time
+        component:  | distance
         repetition: n times
-        cooldown: Y/N time | distance
+        cooldown|time
 
     }"""
-    occurence = db.Column(db.DateTime, nullable=False)
-    completion = db.Column(db.Boolean, nullable=True)
-
+    start_time = db.Column(db.DateTime, nullable=False)  
+    end_time = db.Column(db.DateTime, nullable=False)
 
     user = db.relationship("User",
-                               backref=db.backref("workouts",
-                                                  order_by=occurence))
-    # calendar = db.relationship("Calendar",
-    #                             secondary="users",
-    #                             backref=db.backref("workouts",
-    #                                               order_by=occurence))
+                           backref=db.backref("workouts",
+                                              order_by=start_time))
+    # add db.relationship for BaseWorkout
+
+    calendar = db.relationship("Calendar",
+                                backref=db.backref("workouts",
+                                              order_by=start_time))
 
     def __repr__(self):
-            """show info about user"""
-            return f"<Workout workout_id={self.workout_id} name={self.name}>"
+        """show info about user"""
+        return f"<Workout workout_id={self.workout_id} name={self.name}>"
     
 
 class CompletedWorkout(db.Model):
@@ -104,20 +109,22 @@ class CompletedWorkout(db.Model):
     result_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     workout_id = db.Column(db.Integer, db.ForeignKey('workouts.workout_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    calendar_id = db.Column(db.Integer, db.ForeignKey('calendars.calendar_id'))
+    
     # json of layout frame keys and result values
-    layout = db.Column(db.Integer, nullable=True)
-    enter_date = db.Column(db.DateTime, nullable=False)
+
+    result_values = db.Column(db.Integer, nullable=True)  # rename this to something more related to results
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
 
     workout = db.relationship("Workout", backref="result")
 
     user = db.relationship("User",
                                backref=db.backref("results",
-                                                  order_by=enter_date))
-    calendar = db.relationship("Calendar",
-                               backref=db.backref("results",
-                                                  order_by=enter_date))
+                                                  order_by=created_at))
+    # move this relationship to Workout class
+    # calendar = db.relationship("Calendar",
+    #                            backref=db.backref("results",
+    #                                               order_by=created_at))
     
 
     def __repr__(self):
@@ -131,22 +138,19 @@ class Calendar(db.Model):
     __tablename__ = "calendars"
 
     calendar_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(50), nullable = False) # add calendar name column
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    # json dict of workout instances- OR- list of workout instances
-    workouts = db.Column(db.Integer, nullable=False)
-    # NULLABLE???
-    start_date = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship("User",
-                               backref=db.backref("calendars",
-                                                  order_by=start_date))
+                           backref=db.backref("calendars",
+                                              order_by=name)) 
 
     def __repr__(self):
-            """Provide helpful representation when printed."""
+        """Provide helpful representation when printed."""
 
-            return f"""<Calendar id={self.rating_id} 
-                       user_id={self.user_id} 
-                       start_date={self.start_date}>"""
+        return f"""<Calendar id={self.name} 
+                   user_id={self.user_id} 
+                   start_date={self.start_date}>"""
 
 
 
