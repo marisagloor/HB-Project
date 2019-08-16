@@ -1,7 +1,8 @@
 """Models and database functions for running project."""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from sqlalchemy_json import MutableJson
+from datetime import datetime
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
 # object, where we do most of our interactions (like committing, etc.)
@@ -28,14 +29,26 @@ class User(db.Model):
         return f"<User user_id={self.user_id} name={self.name}>"
 
 
+class WorkoutForm(db.Model):
+
+    __tablename__ = "forms"
+
+    form_code = db.Column(db.String(10), primary_key=True, nullable=False)
+    form_name = db.Column(db.String(10), nullable=False)
+
+    def __repr__(self):
+        """Show form_code information"""
+        return f"<Workout Forms form_code={self.form_code} form_type={self.form_type}>"
+
+
 class BaseWorkout(db.Model):
 
     __tablename__ = "base_workouts"
 
     bw_id = db.Column(db.Integer, autoincrement=True, primary_key=True)  
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    form_code = db.Column(db.String(10), db.ForeignKey('forms.form_code'))
     title = db.Column(db.String(30), nullable=False)
-    form_code = db.Column(db.String, db.ForeignKey('form_codes.form_code'))
     mon = db.Column(db.String, nullable=False)
     tues = db.Column(db.String, nullable=False)
     wed = db.Column(db.String, nullable=False)
@@ -45,23 +58,11 @@ class BaseWorkout(db.Model):
     sun = db.Column(db.String, nullable=False)
 
     user = db.relationship("User", backref="base_workouts")
-    form_code = db.relationship("WorkoutForms", backref="base_workouts")
+    form = db.relationship("WorkoutForm", backref="base_workouts")
 
     def __repr__(self):
         """show info about user"""
         return f"<BaseWorkout bw_id={self.bw_id} type={self.title}>"
-
-
-class Form(db.Model):
-
-    __tablename__ = "form_codes"
-
-    form_code = db.Column(db.String, primary_key=True)
-    form_name = db.Column(db.String(10), nullable=False)
-
-    def __repr__(self):
-        """Show form_code information"""
-        return f"<Workout Forms form_code={self.form_code} form_type={self.form_type}>"
 
 
 
@@ -76,7 +77,7 @@ class Workout(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     calendar_id = db.Column(db.Integer, db.ForeignKey('calendars.calendar_id'))
     # json dictionary of wo frame + frame values
-    layout = db.Column(db.MutableJson, nullable=False)  # make this JSON column type
+    layout = db.Column(MutableJson, nullable=False)  # make this JSON column type
     """{ 
         warmup: time
         component:  | distance
@@ -113,7 +114,7 @@ class CompletedWorkout(db.Model):
     # json of layout frame keys and result values
 
     result_values = db.Column(db.Integer, nullable=True)  # rename this to something more related to results
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
     workout = db.relationship("Workout", backref="result")
@@ -162,6 +163,8 @@ class Calendar(db.Model):
 
 
 def connect_to_db(app, db_name):
+    """Connect the database to our Flask app."""
+
     app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql:///{db_name}"
     # app.config["SQLALCHEMY_ECHO"] = True
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -172,28 +175,13 @@ def connect_to_db(app, db_name):
 
 
 if __name__ == "__main__":
+    # As a convenience, if we run this module interactively, it will leave
+    # you in a state of being able to work with the database directly.
 
     from server import app
     connect_to_db(app, "runners")
     print("Connected to DB")
 
 
-# def connect_to_db(app):
-#     """Connect the database to our Flask app."""
 
-#     # Configure to use our PstgreSQL database
-#     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///runners'
-#     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#     db.app = app
-#     db.init_app(app)
-#     db.create_all()
-
-
-# if __name__ == "__main__":
-#     # As a convenience, if we run this module interactively, it will leave
-#     # you in a state of being able to work with the database directly.
-
-#     from server import app
-#     connect_to_db(app)
-#     print("Connected to DB.")
 

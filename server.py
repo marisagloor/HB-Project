@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, flash, session
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar
+from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar, WorkoutForm
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -69,11 +69,12 @@ def add_base_wo_form():
     title = request.form.get('title')
     form = request.form.get('form')
     days = [request.form.get(f'day{i}') for i in range(1, 8)]
+    print(title, form, days)
 
     user = User.query.get(session['user_id'])
     
     user.base_workouts.append(BaseWorkout(title=title, 
-                                form=form, mon=days[0], 
+                                form_code=form, mon=days[0], 
                                 tues=days[1], wed=days[2],
                                 thurs=days[3], fri=days[4], 
                                 sat=days[5], sun=days[6]))
