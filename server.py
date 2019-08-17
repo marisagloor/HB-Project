@@ -8,6 +8,7 @@ from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkou
 
 from sqlalchemy.orm.exc import NoResultFound
 
+import datetime
 
 app = Flask(__name__)
 
@@ -59,13 +60,13 @@ def process_registration():
 
 
 @app.route('/add_workout_type', methods=['GET'])
-def ase_wo_form():
+def base_wo_form():
 
     return render_template('add_workout_type_form.html')
 
 
 @app.route('/add_workout_type', methods=['POST'])
-def add_base_wo_form():
+def add_base_wo():
     title = request.form.get('title')
     form = request.form.get('form')
     days = [request.form.get(f'day{i}') for i in range(1, 8)]
@@ -87,6 +88,80 @@ def add_base_wo_form():
 def workout_types():
     """Show all user's base_workouts"""
     pass
+
+
+@app.route('/add_calendar', methods=['GET'])
+def calendar_form():
+    """Render the calendar creation form"""
+
+    return render_template('create_calendar_form.html',
+                            user=User.query.get(session['user_id']))
+
+
+@app.route('/add_calendar', methods=['POST'])
+def create_calendar():
+    """Instantiate calendar"""
+    title = request.form.get('title')
+    cal = Calendar(user_id=session['user_id'], name='title')
+    db.session.add(cal)
+    db.session.commit()
+    jdict = {"WU":"time", "Component":"distance", "repeats":1, "CD":"time"}
+
+    start_date = request.form.get('schedule-start')
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = request.form.get('schedule-end')
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+    
+    type(end_date)
+    day_range = (end_date - start_date).days + 1
+    print("\n\n\n", title, start_date, end_date, day_range, "\n\n\n\n")
+    for n in range(day_range):
+        print(n,
+        datetime.date.isoweekday(start_date + datetime.timedelta(n)))
+        weekday = datetime.date.isoweekday(start_date + datetime.timedelta(n))
+        # IDEA TODO - change model.py tohave columnnames 'mon' etc AS 1
+        if weekday == 1:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             mon='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 2:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             tues='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 3:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             wed='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 4:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             thurs='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 5:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             fri='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 6:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             sat='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        elif weekday == 7:
+            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
+             sun='True').all()
+            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+        print(base_workout)
+        
+
+    return redirect('/')
+
+
+
+def generate_calendar_workout(base_workout, cal, jdict, start_date, n ):
+    """generates workouts within daterange for calendar_id"""
+    db.session.add(Workout(name="workout", bw_id=base_workout.bw_id, 
+            user_id=session['user_id'], calendar_id=cal.calendar_id, layout=jdict, 
+            start_time=datetime.date(start_date + datetime.timedelta(n)),
+            end_time=datetime.date(start_date + datetime.timedelta(n))))
+    db.session.commit()
 
 
 @app.route('/login')

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>New Calendar</h1>
+
+{% if session['login_status'] == True %}
+    <form action="/add_calendar" method="POST" required>
+        Title: <input type="text" name="title" required><br><br>
+             
+        Start-date <input type="date" id="start" name="schedule-start"
+                value="yyyy-mm-dd"><br>
+        End-date <input type="date" id="end" name="schedule-end"
+                value="yyyy-mm-dd"><br><br>
+        <button type="submit">Create</button>
+        
+        
+    </form>
+{% else %}
+    <p>Please login to create a workout type</p>
+{% endif %}
+
+{% endblock %}
