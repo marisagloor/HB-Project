@@ -10,6 +10,9 @@ from sqlalchemy.orm.exc import NoResultFound
 
 import datetime
 
+import random
+
+
 app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
@@ -123,31 +126,31 @@ def create_calendar():
         if weekday == 1:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              mon='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 2:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              tues='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 3:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              wed='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 4:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              thurs='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 5:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              fri='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 6:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              sat='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         elif weekday == 7:
             base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
              sun='True').all()
-            generate_calendar_workout(base_workout[0], cal, jdict, start_date, n)
+            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
         print(base_workout)
         
 
@@ -157,11 +160,12 @@ def create_calendar():
 
 def generate_calendar_workout(base_workout, cal, jdict, start_date, n ):
     """generates workouts within daterange for calendar_id"""
-    db.session.add(Workout(name="workout", bw_id=base_workout.bw_id, 
-            user_id=session['user_id'], calendar_id=cal.calendar_id, layout=jdict, 
-            start_time=datetime.date(start_date + datetime.timedelta(n)),
-            end_time=datetime.date(start_date + datetime.timedelta(n))))
-    db.session.commit()
+    if base_workout:
+        db.session.add(Workout(name="workout", bw_id=random.choice(base_workout).bw_id, 
+                user_id=session['user_id'], calendar_id=cal.calendar_id, layout=jdict, 
+                start_time=(start_date + datetime.timedelta(n)),
+                end_time=(start_date + datetime.timedelta(n))))
+        db.session.commit()
 
 
 @app.route('/login')
