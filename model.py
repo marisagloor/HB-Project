@@ -92,6 +92,9 @@ class Workout(db.Model):
                            backref=db.backref("workouts",
                                               order_by=start_time))
     # add db.relationship for BaseWorkout
+    base = db.relationship("BaseWorkout", 
+                            backref=db.backref("workouts", 
+                                                order_by=start_time))
 
     calendar = db.relationship("Calendar",
                                 backref=db.backref("workouts",

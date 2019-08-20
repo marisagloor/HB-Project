@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>New Workout Type</h1>
+
+{% if session['login_status'] == True %}
+    <form action="/add_workout" method="POST" required>
+        Title: <input type="text" name="title" required><br><br>
+        <p>Select the form of your workout:<p>
+        <select name="form">
+            <option value="REP"> Repeat </option>
+            <option value="TIME"> Time </option>
+            <option value="DIS"> Distance </option>
+        </select>   
+        
+
+        <button type="submit">ADD</button>
+        
+    </form>
+
+    {% for sp_wo in base_wo.layout_choices['components'] %}
+{% else %}
+    <p>Please login to create add workout specifications</p>
+{% endif %}
+
+{% endblock %}

@@ -70,6 +70,7 @@ def base_wo_form():
 
 @app.route('/add_workout_type', methods=['POST'])
 def add_base_wo():
+    """Create base workout without specific workouts"""
     title = request.form.get('title')
     form = request.form.get('form')
     days = [request.form.get(f'day{i}') for i in range(1, 8)]
@@ -87,11 +88,18 @@ def add_base_wo():
     return redirect('/')
 
 
-@app.route('/workout_types')
+@app.route('/categories')
 def workout_types():
     """Show all user's base_workouts"""
-    pass
 
+    base_workouts = BaseWorkout.query.filter_by(user_id=session['user_id']).all()
+    return render_template('workout_categories.html', base_workouts=base_workouts)
+
+@app.route('/categories/<base_wo.bw_id>')
+def view_base_wo(base_id):
+    """show base workout details and add specific workout descriptions"""
+    
+    return render_template(base_wo=BaseWorkout.query.get(base_id))
 
 @app.route('/add_calendar', methods=['GET'])
 def calendar_form():
@@ -158,10 +166,16 @@ def create_calendar():
 
 
 
-def generate_calendar_workout(base_workout, cal, jdict, start_date, n ):
+def generate_calendar_workout(base_workout, cal, jdict, start_date, n):
     """generates workouts within daterange for calendar_id"""
     if base_workout:
-        db.session.add(Workout(name="workout", bw_id=random.choice(base_workout).bw_id, 
+        bw_id = random.choice(base_workout).bw_id
+        if bw_id.form_code == "REP":
+            jdict['repeats'] = 5
+        if bw_id.form_code == "TIME":
+            jdict['component'] = "Time"
+
+        db.session.add(Workout(name="workout", bw_id=bw_id, 
                 user_id=session['user_id'], calendar_id=cal.calendar_id, layout=jdict, 
                 start_time=(start_date + datetime.timedelta(n)),
                 end_time=(start_date + datetime.timedelta(n))))

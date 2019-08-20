@@ -166,7 +166,7 @@ if __name__ == "__main__":
         load_users()
         load_forms()
         load_base_workouts()
-        load_calendar()
-        load_workout()
+        # load_calendar()
+        # load_workout()
         # set_val_user_id()
 
