@@ -2,7 +2,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_json import MutableJson
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -52,7 +52,7 @@ class BaseWorkout(db.Model):
     title = db.Column(db.String(30), nullable=False)
     layout_choices = db.Column(MutableJson, nullable=False)
     mon = db.Column(db.Boolean, nullable=False)
-    tues = db.Column(db.Boolean, nullable=False)
+    tue = db.Column(db.Boolean, nullable=False)
     wed = db.Column(db.Boolean, nullable=False)
     thu = db.Column(db.Boolean, nullable=False)
     fri = db.Column(db.Boolean, nullable=False)
@@ -76,7 +76,7 @@ class BaseWorkout(db.Model):
             weekday: True
         }
 
-        return random.choice(cls.query.filter_by(**filter_dict).all())
+        return cls.query.filter_by(**filter_dict).all()
 
     def generate_calendar_workout(self, cal, start_date, n):
         wo_details = random.choice(self.layout_choices['components'])
@@ -86,8 +86,9 @@ class BaseWorkout(db.Model):
         del wo_details['title']
         self.workouts.append(Workout(bw_id=self.bw_id, name=name, 
             user_id=self.user_id, calendar_id=cal.calendar_id, 
-            start_time=(start_date + datetime.timedelta(n)),
-            end_time=(start_date + datetime.timedelta(n))
+            layout=wo_details,
+            start_time=(start_date + timedelta(n)),
+            end_time=(start_date + timedelta(n))
             ))
         db.session.commit()
 

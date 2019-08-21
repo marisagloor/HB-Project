@@ -134,23 +134,19 @@ def create_calendar():
     end_date = request.form.get('schedule-end')
     end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
     
-    type(end_date)
     day_range = (end_date - start_date).days + 1
-    print("\n\n\n", title, start_date, end_date, day_range, "\n\n\n\n")
 
 
     for n in range(day_range):
-        print(n,
-        datetime.date.isoweekday(start_date + datetime.timedelta(n)))
-        weekday = datetime.date.isoweekday(start_date + datetime.timedelta(n))
         # IDEA TODO - change model.py tohave columnnames 'mon' etc AS 1
         curr_start = start_date + datetime.timedelta(n)
         weekday_str = datetime.datetime.strftime(curr_start, '%a').lower()
 
-        base_workout = get_by_weekday(session['user_id'], weekday_str)
+        base_workout = BaseWorkout.get_by_weekday(session['user_id'], weekday_str)
+        
         if base_workout:
-            base_workout.generate_calendar_workout(base_workout,
-                                                     cal, start_date, n)
+            base_workout = random.choice(base_workout)
+            base_workout.generate_calendar_workout(cal, start_date, n)
 
         
 

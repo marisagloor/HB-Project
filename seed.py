@@ -58,22 +58,22 @@ def load_base_workouts():
     """Load sample workouts"""
     layout1 = {
               'warmup': 'time',
-              'component': [{'title':'Mile repeats', 'body': '1 mile', "Repetition": 3}],
+              'components': [{'title':'Mile repeats', 'body': '1 mile', "Repetition": 3}],
               'cooldown': 'time'
     }
     layout2 = {
               'warmup': 'time',
-              'component': [{'title':'long run', 'body': '10k', "Repetition": 1}],
+              'components': [{'title':'long run', 'body': '10k', "Repetition": 1}],
               'cooldown': 'time'
     }
     layout3 = {
               'warmup': 'time',
-              'component': [{'title':'300m repeats', 'body': '300m', "Repetition": 5}],
+              'components': [{'title':'300m repeats', 'body': '300m', "Repetition": 5}],
               'cooldown': 'time'
     }
     layout4 = {
               'warmup': 'time',
-              'component': [{'title':'Arcata forest trail', 'body': '1hr', "Repetition": 1}],
+              'components': [{'title':'Arcata forest trail', 'body': '1hr', "Repetition": 1}],
               'cooldown': 'time'
     }
     
@@ -83,7 +83,7 @@ def load_base_workouts():
                   form_code="REP",
                   layout_choices=layout1,
                   mon=False,
-                  tues=False,
+                  tue=False,
                   wed=True,
                   thu=False,
                   fri=False,
@@ -94,7 +94,7 @@ def load_base_workouts():
                   form_code="DIS",
                   layout_choices=layout2,
                   mon=True,
-                  tues=False,
+                  tue=False,
                   wed=False,
                   thu=False,
                   fri=False,
@@ -105,7 +105,7 @@ def load_base_workouts():
                   form_code="REP",
                   layout_choices=layout3,
                   mon=False,
-                  tues=False,
+                  tue=False,
                   wed=True,
                   thu=False,
                   fri=True,
@@ -116,7 +116,7 @@ def load_base_workouts():
                   form_code="TIME",
                   layout_choices=layout4,
                   mon=True,
-                  tues=False,
+                  tue=False,
                   wed=True,
                   thu=True,
                   fri=False,
