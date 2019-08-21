@@ -27,11 +27,29 @@
         <input type="checkbox" name="day7" value=True>Sunday<br>
         <input type="hidden" name="day7" value="False" />
 
-        <p>How will warmups and cooldowns be measured?<p>
+        <p>How will warm-ups and cool-downs be measured?<p>
         <select name="wu_cd">
-            <option value="None"> No warm-up </option>
+            <option value="None"> No warm-up/cool-down </option>
             <option value="TIME"> Time </option>
             <option value="DIS"> Distance </option>
+        </select><br>
+        Please enter a specific workout body: 
+        <input type="text" name="body" required><br><br>
+        
+        <select name="repeats">
+            <option value="1"> 1 </option>
+            <option value="2"> 2 </option>
+            <option value="3"> 3 </option>
+            <option value="4"> 4 </option>
+            <option value="5"> 5 </option>
+            <option value="6"> 6 </option>
+            <option value="1"> 7 </option>
+            <option value="2"> 8 </option>
+            <option value="3"> 9 </option>
+            <option value="4"> 10 </option>
+            <option value="5"> 11 </option>
+            <option value="6"> 12 </option>
+        </select><br>
 
         <button type="submit">ADD</button>
         

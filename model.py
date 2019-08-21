@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_json import MutableJson
 from datetime import datetime
+import random
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
 # object, where we do most of our interactions (like committing, etc.)
@@ -49,20 +50,53 @@ class BaseWorkout(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     form_code = db.Column(db.String(10), db.ForeignKey('forms.form_code'))
     title = db.Column(db.String(30), nullable=False)
-    mon = db.Column(db.String, nullable=False)
-    tues = db.Column(db.String, nullable=False)
-    wed = db.Column(db.String, nullable=False)
-    thurs = db.Column(db.String, nullable=False)
-    fri = db.Column(db.String, nullable=False)
-    sat = db.Column(db.String, nullable=False)
-    sun = db.Column(db.String, nullable=False)
+    layout_choices = db.Column(MutableJson, nullable=False)
+    mon = db.Column(db.Boolean, nullable=False)
+    tues = db.Column(db.Boolean, nullable=False)
+    wed = db.Column(db.Boolean, nullable=False)
+    thu = db.Column(db.Boolean, nullable=False)
+    fri = db.Column(db.Boolean, nullable=False)
+    sat = db.Column(db.Boolean, nullable=False)
+    sun = db.Column(db.Boolean, nullable=False)
 
     user = db.relationship("User", backref="base_workouts")
     form = db.relationship("WorkoutForm", backref="base_workouts")
 
+
+
     def __repr__(self):
         """show info about user"""
         return f"<BaseWorkout bw_id={self.bw_id} type={self.title}>"
+
+    @classmethod
+    def get_by_weekday(cls, user_id, weekday):
+        
+        filter_dict = {
+            'user_id': user_id,
+            weekday: True
+        }
+
+        return random.choice(cls.query.filter_by(**filter_dict).all())
+
+    def generate_calendar_workout(self, cal, start_date, n):
+        wo_details = random.choice(self.layout_choices['components'])
+        wo_details['warmup'] = self.layout_choices['warmup']
+        wo_details['cooldown'] = self.layout_choices['cooldown']
+        name = wo_details['title']
+        del wo_details['title']
+        self.workouts.append(Workout(bw_id=self.bw_id, name=name, 
+            user_id=self.user_id, calendar_id=cal.calendar_id, 
+            start_time=(start_date + datetime.timedelta(n)),
+            end_time=(start_date + datetime.timedelta(n))
+            ))
+        db.session.commit()
+
+
+
+    @classmethod
+    def add_to_layout_choices(specs_list):
+        pass
+
 
 
 

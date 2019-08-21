@@ -73,13 +73,24 @@ def add_base_wo():
     """Create base workout without specific workouts"""
     title = request.form.get('title')
     form = request.form.get('form')
-    days = [request.form.get(f'day{i}') for i in range(1, 8)]
-    print(title, form, days)
+    wucd = request.form.get('wu_cd')
+    layout = {'warmup' : wucd, 
+                'component': [],
+                'cooldown': wucd
+                }
+    str_days = [request.form.get(f'day{i}') for i in range(1, 8)]
+    days = []
+
+    for day in str_days:
+        if day == "True":
+            days.append(True)
+        else:
+            days.append(False)
 
     user = User.query.get(session['user_id'])
     
-    user.base_workouts.append(BaseWorkout(title=title, 
-                                form_code=form, mon=days[0], 
+    user.base_workouts.append(BaseWorkout(title=title, form_code=form, 
+                                layout_choices=layout, mon=days[0], 
                                 tues=days[1], wed=days[2],
                                 thurs=days[3], fri=days[4], 
                                 sat=days[5], sun=days[6]))
@@ -95,11 +106,11 @@ def workout_types():
     base_workouts = BaseWorkout.query.filter_by(user_id=session['user_id']).all()
     return render_template('workout_categories.html', base_workouts=base_workouts)
 
-@app.route('/categories/<base_wo.bw_id>')
-def view_base_wo(base_id):
-    """show base workout details and add specific workout descriptions"""
-    
-    return render_template(base_wo=BaseWorkout.query.get(base_id))
+# @app.route('/categories/<base_wo.bw_id>')
+# def view_base_wo(base_id):
+#     """show base workout details and add specific workout descriptions"""
+
+#     return render_template(base_wo=BaseWorkout.query.get(base_id))
 
 @app.route('/add_calendar', methods=['GET'])
 def calendar_form():
@@ -113,10 +124,10 @@ def calendar_form():
 def create_calendar():
     """Instantiate calendar"""
     title = request.form.get('title')
-    cal = Calendar(user_id=session['user_id'], name='title')
+    cal = Calendar(user_id=session['user_id'], name=title)
     db.session.add(cal)
     db.session.commit()
-    jdict = {"WU":"time", "Component":"distance", "repeats":1, "CD":"time"}
+    
 
     start_date = request.form.get('schedule-start')
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
@@ -126,60 +137,25 @@ def create_calendar():
     type(end_date)
     day_range = (end_date - start_date).days + 1
     print("\n\n\n", title, start_date, end_date, day_range, "\n\n\n\n")
+
+
     for n in range(day_range):
         print(n,
         datetime.date.isoweekday(start_date + datetime.timedelta(n)))
         weekday = datetime.date.isoweekday(start_date + datetime.timedelta(n))
         # IDEA TODO - change model.py tohave columnnames 'mon' etc AS 1
-        if weekday == 1:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             mon='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 2:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             tues='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 3:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             wed='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 4:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             thurs='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 5:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             fri='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 6:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             sat='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        elif weekday == 7:
-            base_workout = BaseWorkout.query.filter_by(user_id=session['user_id'],
-             sun='True').all()
-            generate_calendar_workout(base_workout, cal, jdict, start_date, n)
-        print(base_workout)
+        curr_start = start_date + datetime.timedelta(n)
+        weekday_str = datetime.datetime.strftime(curr_start, '%a').lower()
+
+        base_workout = get_by_weekday(session['user_id'], weekday_str)
+        if base_workout:
+            base_workout.generate_calendar_workout(base_workout,
+                                                     cal, start_date, n)
+
         
 
     return redirect('/')
 
-
-
-def generate_calendar_workout(base_workout, cal, jdict, start_date, n):
-    """generates workouts within daterange for calendar_id"""
-    if base_workout:
-        bw_id = random.choice(base_workout).bw_id
-        if bw_id.form_code == "REP":
-            jdict['repeats'] = 5
-        if bw_id.form_code == "TIME":
-            jdict['component'] = "Time"
-
-        db.session.add(Workout(name="workout", bw_id=bw_id, 
-                user_id=session['user_id'], calendar_id=cal.calendar_id, layout=jdict, 
-                start_time=(start_date + datetime.timedelta(n)),
-                end_time=(start_date + datetime.timedelta(n))))
-        db.session.commit()
 
 
 @app.route('/login')

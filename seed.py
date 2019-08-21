@@ -56,12 +56,32 @@ def load_users():
 
 def load_base_workouts():
     """Load sample workouts"""
-
+    layout1 = {
+              'warmup': 'time',
+              'component': [{'title':'Mile repeats', 'body': '1 mile', "Repetition": 3}],
+              'cooldown': 'time'
+    }
+    layout2 = {
+              'warmup': 'time',
+              'component': [{'title':'long run', 'body': '10k', "Repetition": 1}],
+              'cooldown': 'time'
+    }
+    layout3 = {
+              'warmup': 'time',
+              'component': [{'title':'300m repeats', 'body': '300m', "Repetition": 5}],
+              'cooldown': 'time'
+    }
+    layout4 = {
+              'warmup': 'time',
+              'component': [{'title':'Arcata forest trail', 'body': '1hr', "Repetition": 1}],
+              'cooldown': 'time'
+    }
     
 
     workout1 = BaseWorkout(user_id=1,
                   title="LONG REPS",
                   form_code="REP",
+                  layout_choices=layout1,
                   mon="False",
                   tues="False",
                   wed="True",
@@ -70,8 +90,9 @@ def load_base_workouts():
                   sat="False",
                   sun="False")
     workout2 = BaseWorkout(user_id=1,
-                  title="LONG RUN",
+                  title="LONG RUNS",
                   form_code="DIS",
+                  layout_choices=layout2,
                   mon="True",
                   tues="False",
                   wed="False",
@@ -82,6 +103,7 @@ def load_base_workouts():
     workout3 = BaseWorkout(user_id=2,
                   title="TRACK RUNS",
                   form_code="REP",
+                  layout_choices=layout3,
                   mon="False",
                   tues="False",
                   wed="True",
@@ -92,6 +114,7 @@ def load_base_workouts():
     workout4 = BaseWorkout(user_id=2,
                   title="TRAIL RUNS",
                   form_code="TIME",
+                  layout_choices=layout4,
                   mon="True",
                   tues="False",
                   wed="True",
