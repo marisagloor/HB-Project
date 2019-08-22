@@ -3,7 +3,7 @@
 <h1>New Workout Type</h1>
 
 {% if session['login_status'] == True %}
-    <form action="/add_workout_type" method="POST" required>
+    <form action="/add_workout_category" method="POST" required>
         Title: <input type="text" name="title" required><br><br>
         <p>Select the form of your workout:<p>
         <select name="form">
@@ -13,25 +13,18 @@
         </select>   
         <p>Select days of the week these workouts will be scheduled on</p>
         <input type="checkbox" name="day1" value="True">Monday<br>
-        <input type="hidden" name="day1" value="False" />
         <input type="checkbox" name="day2" value=True>Tuesday<br>
-        <input type="hidden" name="day2" value="False" />
         <input type="checkbox" name="day3" value=True>Wednesday<br>
-        <input type="hidden" name="day3" value="False" />
         <input type="checkbox" name="day4" value=True>Thursday<br>
-        <input type="hidden" name="day4" value="False" />
         <input type="checkbox" name="day5" value=True>Friday<br>
-        <input type="hidden" name="day5" value="False" />
         <input type="checkbox" name="day6" value=True>Saturday<br>
-        <input type="hidden" name="day6" value="False" />
         <input type="checkbox" name="day7" value=True>Sunday<br>
-        <input type="hidden" name="day7" value="False" />
 
         <p>How will warm-ups and cool-downs be measured?<p>
         <select name="wu_cd">
             <option value="None"> No warm-up/cool-down </option>
-            <option value="TIME"> Time </option>
-            <option value="DIS"> Distance </option>
+            <option value="Time"> Time </option>
+            <option value="Distance"> Distance </option>
         </select><br>
         
 

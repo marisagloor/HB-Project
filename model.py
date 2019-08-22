@@ -3,7 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_json import MutableJson, NestedMutableJson
 from datetime import datetime, timedelta
-from 
+from copy import copy
 import random
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -82,7 +82,7 @@ class BaseWorkout(db.Model):
 
 def generate_calendar_workout(base_workout, cal, start_date, n):
     
-    wo_details = random.choice(base_workout.layout_choices['components'])
+    wo_details = copy(random.choice(base_workout.layout_choices['components']))
     wo_details['warmup'] = base_workout.layout_choices['warmup']
     wo_details['cooldown'] = base_workout.layout_choices['cooldown']
     name = wo_details['title']

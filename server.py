@@ -36,51 +36,57 @@ def index():
 
 @app.route('/register', methods=['GET'])
 def register_form():
+    """Takes user to the signup form"""
 
     return render_template('sign_up_form.html')
 
 
 @app.route('/register', methods=['POST'])
 def process_registration():
+    """Adds user to the db from the signup form"""
 
     name = request.form.get('name')
     password = request.form.get('password')
 
+    # User objects have a name password and user_id -> this auto increments
     user = User(name=name, password=password)
-    # user.name = name
-    # user.password = password
 
-    # We need to add to the session or it won't ever be stored
     db.session.add(user)
-    # Once we're done, we should commit our work
     db.session.commit()
     session['login_status'] = True
-    session['user_id'] = user.user_id
-
-    # TODO: add conditions to html to change homepage when 
+    #HTML displays information conditionally based on this cookie
     # logged in - links for workouts, calendars etc
+
+    session['user_id'] = user.user_id
+    # user_id is necessary in many of the following view functions,
+    # until the user logs-out' this cookie can be accessed
+
     return redirect('/')
 
 
-@app.route('/add_workout_type', methods=['GET'])
+@app.route('/add_workout_category', methods=['GET'])
 def base_wo_form():
+    """Takes user to the form to add a general base_workout information"""
 
     return render_template('add_workout_type_form.html')
 
 
-@app.route('/add_workout_type', methods=['POST'])
+@app.route('/add_workout_category', methods=['POST'])
 def add_base_wo():
     """Create base workout without specific workouts"""
+
     title = request.form.get('title')
     form = request.form.get('form')
     wucd = request.form.get('wu_cd')
-    layout = {'warmup' : wucd, 
+    general_layout = {'warmup' : wucd, 
                 'components': [],
                 'cooldown': wucd
                 }
-    str_days = [request.form.get(f'day{i}') for i in range(1, 8)]
-    days = []
 
+    str_days = [request.form.get(f'day{i}') for i in range(1, 8)]
+    # retrieve html input for each day-> these are strings
+    days = []
+    # change input into boolean for each day
     for day in str_days:
         if day == "True":
             days.append(True)
@@ -88,27 +94,34 @@ def add_base_wo():
             days.append(False)
 
     user = User.query.get(session['user_id'])
+    # get logged in user from user_id cookie
+    # possible TODO - change 'user_id' cookie to a 'user' object cookie
+
+    # Instantiate users base workout
     base_wo = BaseWorkout(title=title, form_code=form, 
-                                layout_choices=layout, mon=days[0], 
+                                layout_choices=general_layout, mon=days[0], 
                                 tue=days[1], wed=days[2],
                                 thu=days[3], fri=days[4], 
                                 sat=days[5], sun=days[6])
     user.base_workouts.append(base_wo)
     db.session.commit()
 
+    # display base workouts details - this page has a form to add a specific wo to the category
     return render_template('category_details.html', base_wo=base_wo)
 
 
 @app.route('/categories')
 def workout_types():
-    """Show all user's base_workouts"""
+    """Show all of user's base_workouts"""
 
     base_workouts = BaseWorkout.query.filter_by(user_id=session['user_id']).all()
+
     return render_template('workout_categories.html', base_workouts=base_workouts)
+
 
 @app.route('/categories/<int:base_id>')
 def view_base_wo(base_id):
-    """show base workout details and add specific workout descriptions"""
+    """show base workout details and show/add specific workout descriptions"""
 
     return render_template('category_details.html',
                             base_wo=BaseWorkout.query.get(base_id))
@@ -116,35 +129,40 @@ def view_base_wo(base_id):
 
 @app.route('/add_workout_specs/<int:base_id>', methods=['POST'])
 def add_bwo_layout_choices(base_id):
-    """Add a specific workout to a base workout"""
+    """Add a specific workout to a base workout's layout choices"""
+
     base_wo = BaseWorkout.query.get(base_id)
     title = request.form.get('title')
     body = request.form.get('body')
     repetition = int(request.form.get('repeats'))
     base_wo.layout_choices['components'].append({'title': title, 'body': body, 'repetition': repetition})
     db.session.commit()
+    # adds nested mutable dictionary within components list in layout_choices dictionary
 
     return render_template('category_details.html',
                             base_wo=base_wo)
-
 
 
 @app.route('/add_calendar', methods=['GET'])
 def calendar_form():
     """Render the calendar creation form"""
 
+    # pass in user with the potential of giving the user the option of 
+    # specifying which base_workouts to use in their calendar schedule - currently not an option
     return render_template('create_calendar_form.html',
                             user=User.query.get(session['user_id']))
 
 
 @app.route('/add_calendar', methods=['POST'])
 def create_calendar():
-    """Instantiate calendar"""
+    """Instantiate calendar and generate associated workout instances"""
+
     title = request.form.get('title')
     cal = Calendar(user_id=session['user_id'], name=title)
     db.session.add(cal)
     db.session.commit()
-    
+    # instantiated calendar does not have columns for start-end dates ->
+    # a workout w/ datetime values is generated for each day in the user specified ran
 
     start_date = request.form.get('schedule-start')
     start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
@@ -155,17 +173,19 @@ def create_calendar():
 
 
     for n in range(day_range):
-        # IDEA TODO - change model.py tohave columnnames 'mon' etc AS 1
+        # gets day n days from the start date
         curr_start = start_date + datetime.timedelta(n)
+        # gets the day of the week of the current start as 'mon', 'tue' etc ->
+        # these match the column names for base_workout
         weekday_str = datetime.datetime.strftime(curr_start, '%a').lower()
 
-        base_workout = BaseWorkout.get_by_weekday(session['user_id'], weekday_str)
-        
-        if base_workout:
-            base_workout = random.choice(base_workout)
-            generate_calendar_workout(base_workout, cal, start_date, n)
+        base_workouts = BaseWorkout.get_by_weekday(session['user_id'], weekday_str)
+        # gets all base workouts for a user where the day of the week is true
 
-        
+        # chooses one baseworkout to generate a workout from
+        if base_workouts:
+            base_workout = random.choice(base_workouts)
+            generate_calendar_workout(base_workout, cal, start_date, n)
 
     return redirect('/')
 
@@ -173,12 +193,13 @@ def create_calendar():
 
 @app.route('/login')
 def login_form():
-
+    """Shows login page"""
     return render_template('login_page.html')
 
 
 @app.route('/check_login', methods=['GET'])
 def check_login():
+    """Checks for login attempt in users and logs info in session"""
     name = request.args.get('name')
     password = request.args.get('password')
 
@@ -203,23 +224,13 @@ def check_login():
 
 @app.route('/logout')
 def logout():
+    """Removes login info from session"""
 
     del session['user_id']
     session['login_status'] = False
 
     return redirect('/')
-
-
-# @app.route('/users/<int:user_id>')
-# def user_detail(user_id):
-
-#     user = User.query.get(user_id)
-
-#     return render_template('user_details.html',
-#                            user=user)
-
         
-
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
