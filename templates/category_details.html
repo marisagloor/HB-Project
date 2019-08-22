@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if session['login_status'] == True %}
+    <h1>{{ base_wo.title }}</h1>
+    <h3>Type: {{ base_wo.form_code }}</h3>
+
+
+    <form action="/add_workout_specs/{{ base_wo.bw_id }}" method="POST" required>
+        <p>Add a workout to this category: </p>
+        Title: <input type="text" name="title" required><br><br>
+        {% if base_wo.form_code == 'TIME' %}
+        Time length of this workout:
+             <input type="text" name="body" required><br><br>
+             <input type="hidden" name="repeats" value="1">
+        {% elif base_wo.form_code == 'DIS' %}
+            Distance length of this workout:
+            <input type="text" name="body" required><br><br>
+            <input type="hidden" name="repeats" value="1">
+        {% elif base_wo.form_code == 'REP' %}
+            Distance component of this workout:
+            <input type="text" name="body" required><br><br>
+            Number of repeats:
+            <input type="number" name="repeats" min="1">
+        {% endif %}
+        <button type="submit">ADD</button>  
+    </form>
+    <h3>Workouts</h3>
+    {% for wo in base_wo.layout_choices['components'] %}
+    <h4>{{ wo['title'] }}</h4>   
+    <p>{{ wo['body'] }}, {{ wo['repetition'] }} times</p><br><br> 
+
+    {% endfor %}
+
+
+{% else %}
+    <p>Please login to create a workout type</p>
+{% endif %}
+
+{% endblock %}
+
+
+ 
+

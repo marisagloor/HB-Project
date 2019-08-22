@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, flash, session
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar, WorkoutForm
+from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar, WorkoutForm, generate_calendar_workout
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -75,7 +75,7 @@ def add_base_wo():
     form = request.form.get('form')
     wucd = request.form.get('wu_cd')
     layout = {'warmup' : wucd, 
-                'component': [],
+                'components': [],
                 'cooldown': wucd
                 }
     str_days = [request.form.get(f'day{i}') for i in range(1, 8)]
@@ -88,15 +88,15 @@ def add_base_wo():
             days.append(False)
 
     user = User.query.get(session['user_id'])
-    
-    user.base_workouts.append(BaseWorkout(title=title, form_code=form, 
+    base_wo = BaseWorkout(title=title, form_code=form, 
                                 layout_choices=layout, mon=days[0], 
-                                tues=days[1], wed=days[2],
-                                thurs=days[3], fri=days[4], 
-                                sat=days[5], sun=days[6]))
+                                tue=days[1], wed=days[2],
+                                thu=days[3], fri=days[4], 
+                                sat=days[5], sun=days[6])
+    user.base_workouts.append(base_wo)
     db.session.commit()
 
-    return redirect('/')
+    return render_template('category_details.html', base_wo=base_wo)
 
 
 @app.route('/categories')
@@ -106,11 +106,28 @@ def workout_types():
     base_workouts = BaseWorkout.query.filter_by(user_id=session['user_id']).all()
     return render_template('workout_categories.html', base_workouts=base_workouts)
 
-# @app.route('/categories/<base_wo.bw_id>')
-# def view_base_wo(base_id):
-#     """show base workout details and add specific workout descriptions"""
+@app.route('/categories/<int:base_id>')
+def view_base_wo(base_id):
+    """show base workout details and add specific workout descriptions"""
 
-#     return render_template(base_wo=BaseWorkout.query.get(base_id))
+    return render_template('category_details.html',
+                            base_wo=BaseWorkout.query.get(base_id))
+
+
+@app.route('/add_workout_specs/<int:base_id>', methods=['POST'])
+def add_bwo_layout_choices(base_id):
+    """Add a specific workout to a base workout"""
+    base_wo = BaseWorkout.query.get(base_id)
+    title = request.form.get('title')
+    body = request.form.get('body')
+    repetition = int(request.form.get('repeats'))
+    base_wo.layout_choices['components'].append({'title': title, 'body': body, 'repetition': repetition})
+    db.session.commit()
+
+    return render_template('category_details.html',
+                            base_wo=base_wo)
+
+
 
 @app.route('/add_calendar', methods=['GET'])
 def calendar_form():
@@ -146,7 +163,7 @@ def create_calendar():
         
         if base_workout:
             base_workout = random.choice(base_workout)
-            base_workout.generate_calendar_workout(cal, start_date, n)
+            generate_calendar_workout(base_workout, cal, start_date, n)
 
         
 

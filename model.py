@@ -1,8 +1,9 @@
 """Models and database functions for running project."""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_json import MutableJson
+from sqlalchemy_json import MutableJson, NestedMutableJson
 from datetime import datetime, timedelta
+from 
 import random
 # This is the connection to the PostgreSQL database; we're getting this through
 # the Flask-SQLAlchemy helper library. On this, we can find the `session`
@@ -50,7 +51,7 @@ class BaseWorkout(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     form_code = db.Column(db.String(10), db.ForeignKey('forms.form_code'))
     title = db.Column(db.String(30), nullable=False)
-    layout_choices = db.Column(MutableJson, nullable=False)
+    layout_choices = db.Column(NestedMutableJson, nullable=False)
     mon = db.Column(db.Boolean, nullable=False)
     tue = db.Column(db.Boolean, nullable=False)
     wed = db.Column(db.Boolean, nullable=False)
@@ -74,29 +75,27 @@ class BaseWorkout(db.Model):
         filter_dict = {
             'user_id': user_id,
             weekday: True
+
         }
 
         return cls.query.filter_by(**filter_dict).all()
 
-    def generate_calendar_workout(self, cal, start_date, n):
-        wo_details = random.choice(self.layout_choices['components'])
-        wo_details['warmup'] = self.layout_choices['warmup']
-        wo_details['cooldown'] = self.layout_choices['cooldown']
-        name = wo_details['title']
-        del wo_details['title']
-        self.workouts.append(Workout(bw_id=self.bw_id, name=name, 
-            user_id=self.user_id, calendar_id=cal.calendar_id, 
-            layout=wo_details,
-            start_time=(start_date + timedelta(n)),
-            end_time=(start_date + timedelta(n))
-            ))
-        db.session.commit()
+def generate_calendar_workout(base_workout, cal, start_date, n):
+    
+    wo_details = random.choice(base_workout.layout_choices['components'])
+    wo_details['warmup'] = base_workout.layout_choices['warmup']
+    wo_details['cooldown'] = base_workout.layout_choices['cooldown']
+    name = wo_details['title']
+    del wo_details['title']
 
+    base_workout.workouts.append(Workout(bw_id=base_workout.bw_id, name=name, 
+        user_id=base_workout.user_id, calendar_id=cal.calendar_id, 
+        layout=wo_details,
+        start_time=(start_date + timedelta(n)),
+        end_time=(start_date + timedelta(n))
+        ))
+    db.session.commit()
 
-
-    @classmethod
-    def add_to_layout_choices(specs_list):
-        pass
 
 
 

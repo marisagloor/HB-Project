@@ -58,22 +58,28 @@ def load_base_workouts():
     """Load sample workouts"""
     layout1 = {
               'warmup': 'time',
-              'components': [{'title':'Mile repeats', 'body': '1 mile', "Repetition": 3}],
+              'components': [{"title": "Mile repeats", "body": "1 mile", "repetition": 3},
+                            {"title": "1k repeats", "body": "1000m", "repetition": 5}, 
+                            {"title": "8k repeats", "body": "8000m", "repetition": 2}, 
+                            {"title": "10k repeats", "body": "10,000m", "repetition": 2}, 
+                            {"title": "5k repeats", "body": "5000m", "repetition": 3}, 
+                            {"title": "Long hill repeats", "body": "300m", "repetition": 5}],
               'cooldown': 'time'
     }
+
     layout2 = {
               'warmup': 'time',
-              'components': [{'title':'long run', 'body': '10k', "Repetition": 1}],
+              'components': [{'title':'long run', 'body': '10k', "repetition": 1}],
               'cooldown': 'time'
     }
     layout3 = {
               'warmup': 'time',
-              'components': [{'title':'300m repeats', 'body': '300m', "Repetition": 5}],
+              'components': [{'title':'300m repeats', 'body': '300m', "repetition": 5}],
               'cooldown': 'time'
     }
     layout4 = {
               'warmup': 'time',
-              'components': [{'title':'Arcata forest trail', 'body': '1hr', "Repetition": 1}],
+              'components': [{'title':'Arcata forest trail', 'body': '1hr', "repetition": 1}],
               'cooldown': 'time'
     }
     
