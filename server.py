@@ -185,10 +185,27 @@ def create_calendar():
         # chooses one baseworkout to generate a workout from
         if base_workouts:
             base_workout = random.choice(base_workouts)
-            generate_calendar_workout(base_workout, cal, start_date, n)
+            generate_calendar_workout(base_workout, cal, curr_start)
 
     return redirect('/')
 
+
+@app.route('/calendars')
+def view_calendars():
+    """Show all of user's calendar"""
+
+    calendars = Calendar.query.filter_by(user_id=session['user_id']).all()
+
+    return render_template('calendars.html',
+                            calendars=calendars)
+
+
+@app.route('/calendars/<int:cal_id>')
+def view_cal(cal_id):
+    """show base workout details and show/add specific workout descriptions"""
+
+    return render_template('calendar_details.html',
+                            cal=Calendar.query.get(cal_id))
 
 
 @app.route('/login')

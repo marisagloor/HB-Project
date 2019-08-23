@@ -4,12 +4,13 @@
   <h2>Workout Categories</h2>
 
   <ul>
+
     {% for base_wo in base_workouts %}
-      <li>
-        <a href="/categories/{{ base_wo.bw_id }}">
-          {{ base_wo.bw_id }} {{ base_wo.title }} 
-        </a>
-      </li>
+        <li>
+          <a href="/categories/{{ base_wo.bw_id }}">
+            {{ base_wo.bw_id }} {{ base_wo.title }} 
+          </a>
+        </li>
     {% endfor %}
   </ul>
 

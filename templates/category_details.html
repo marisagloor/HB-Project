@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-{% if session['login_status'] == True %}
+{% if session['user_id'] == base_wo.user_id %}
     <h1>{{ base_wo.title }}</h1>
     <h3>Type: {{ base_wo.form_code }}</h3>
 
@@ -34,7 +34,7 @@
 
 
 {% else %}
-    <p>Please login to create a workout type</p>
+    <p>Please login to view category</p>
 {% endif %}
 
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <h2>Calendars</h2>
+
+  <ul>
+    {% for cal in calendars %}
+      <li>
+        <a href="/calendars/{{ cal.calendar_id }}">
+          {{ cal.calendar_id }} {{ cal.name }} 
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+
+{% endblock %}

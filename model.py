@@ -32,7 +32,7 @@ class User(db.Model):
 
 
 class WorkoutForm(db.Model):
-
+    """Type of workout- repetition time distance"""
     __tablename__ = "forms"
 
     form_code = db.Column(db.String(10), primary_key=True, nullable=False)
@@ -44,7 +44,8 @@ class WorkoutForm(db.Model):
 
 
 class BaseWorkout(db.Model):
-
+    """Workout details"""
+    
     __tablename__ = "base_workouts"
 
     bw_id = db.Column(db.Integer, autoincrement=True, primary_key=True)  
@@ -71,7 +72,7 @@ class BaseWorkout(db.Model):
 
     @classmethod
     def get_by_weekday(cls, user_id, weekday):
-        
+        """Query class for a users workouts with a certain day = to true"""
         filter_dict = {
             'user_id': user_id,
             weekday: True
@@ -80,8 +81,8 @@ class BaseWorkout(db.Model):
 
         return cls.query.filter_by(**filter_dict).all()
 
-def generate_calendar_workout(base_workout, cal, start_date, n):
-    
+def generate_calendar_workout(base_workout, cal, start_date):
+    """Generate a workout on a given day"""
     wo_details = copy(random.choice(base_workout.layout_choices['components']))
     wo_details['warmup'] = base_workout.layout_choices['warmup']
     wo_details['cooldown'] = base_workout.layout_choices['cooldown']
@@ -91,8 +92,8 @@ def generate_calendar_workout(base_workout, cal, start_date, n):
     base_workout.workouts.append(Workout(bw_id=base_workout.bw_id, name=name, 
         user_id=base_workout.user_id, calendar_id=cal.calendar_id, 
         layout=wo_details,
-        start_time=(start_date + timedelta(n)),
-        end_time=(start_date + timedelta(n))
+        start_time=start_date,
+        end_time=start_date
         ))
     db.session.commit()
 
@@ -101,7 +102,7 @@ def generate_calendar_workout(base_workout, cal, start_date, n):
 
 
 class Workout(db.Model):
-    """Ratings of movies by users"""
+    """Scheduled workouts"""
 
     __tablename__ = "workouts"
 
@@ -114,7 +115,7 @@ class Workout(db.Model):
     layout = db.Column(MutableJson, nullable=False)  # make this JSON column type
     """{ 
         warmup: time
-        component:  | distance
+        component: time | distance
         repetition: n times
         cooldown|time
 
@@ -140,7 +141,7 @@ class Workout(db.Model):
     
 
 class CompletedWorkout(db.Model):
-    """Ratings of movies by users"""
+    """Result values corresponding to workout layout"""
 
     __tablename__ = "results"
 
@@ -171,7 +172,7 @@ class CompletedWorkout(db.Model):
 
 
 class Calendar(db.Model):
-    """Ratings of movies by users"""
+    """Calendars to schedule workouts in"""
 
     __tablename__ = "calendars"
 

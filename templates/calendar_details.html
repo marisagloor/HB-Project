@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <title>WORKOUT MY WORKOUT</title>
+
+  {% if session['login_status'] == True %}
+  <form action="/logout">
+      <button type="submit">Logout</button>
+  </form>
+  {% endif %}
+
+  <!-- Show flashed messages -->
+  {% with messages = get_flashed_messages() %}
+      {% for message in messages %}
+          <div class="alert alert-warning">{{ message }}</div>
+      {% endfor %}
+  {% endwith %}
+
+    <!-- <script src="https://unpkg.com/browse/@fullcalendar/core@4.3.1/main.js"></script> -->
+      <link href='fullcalendar/core/main.css' rel='stylesheet' />
+    <link href='fullcalendar/daygrid/main.css' rel='stylesheet' />
+
+    <script src='fullcalendar/core/main.js'></script>
+    <script src='fullcalendar/daygrid/main.js'></script>
+    
+</head>
+
+<body>
+    {% if session['user_id'] == cal.user_id %}
+        <h1>{{ cal.name }}</h1>
+    {% else %}
+        <p>Please login to view calendar</p>
+    {% endif %}
+
+  <script>
+        
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      plugins: [ 'dayGrid' ],
+      defaultView: 'dayGridMonth'
+    });
+
+    </script>
+  
+
+</body>
+</html>
