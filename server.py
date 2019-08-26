@@ -1,6 +1,6 @@
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, request, redirect, flash, session
+from flask import Flask, render_template, request, redirect, flash, session, jsonify
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -197,15 +197,40 @@ def view_calendars():
     calendars = Calendar.query.filter_by(user_id=session['user_id']).all()
 
     return render_template('calendars.html',
-                            calendars=calendars)
+                            calendars=calendars,)
 
 
 @app.route('/calendars/<int:cal_id>')
 def view_cal(cal_id):
     """show base workout details and show/add specific workout descriptions"""
 
+    cal = Calendar.query.get(cal_id)
+    workouts = cal.workouts
+    wo_dict_list = []
+    for workout in workouts:
+        wo_dict_list.append({
+            'id': workout.workout_id,
+            'title': workout.name,
+            'start': workout.start_time.isoformat(' ')[:10]
+            })
+    print(wo_dict_list)
+
+
     return render_template('calendar_details.html',
-                            cal=Calendar.query.get(cal_id))
+                            cal=cal,
+                            workouts=wo_dict_list)
+    # return render_template('calendar_test.html')
+
+
+# @app.route('/create_event/<int:workout_id>')
+# def get_workout(workout_id):
+#     """Jsonify workout row for use in Javascript"""
+#     workout = Workout.query.get(workout_id)
+
+#     return jsonify(name=workout.name,
+#                     layout=workout.layout,
+#                     start_time=workout.start_time,
+#                     end_time=workout.end_time)
 
 
 @app.route('/login')

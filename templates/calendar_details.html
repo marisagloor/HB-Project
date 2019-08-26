@@ -1,46 +1,51 @@
-<!doctype html>
-<html>
-<head>
-  <title>WORKOUT MY WORKOUT</title>
 
-  {% if session['login_status'] == True %}
-  <form action="/logout">
-      <button type="submit">Logout</button>
-  </form>
-  {% endif %}
 
-  <!-- Show flashed messages -->
-  {% with messages = get_flashed_messages() %}
-      {% for message in messages %}
-          <div class="alert alert-warning">{{ message }}</div>
-      {% endfor %}
-  {% endwith %}
 
-    <!-- <script src="https://unpkg.com/browse/@fullcalendar/core@4.3.1/main.js"></script> -->
-      <link href='fullcalendar/core/main.css' rel='stylesheet' />
-    <link href='fullcalendar/daygrid/main.css' rel='stylesheet' />
 
-    <script src='fullcalendar/core/main.js'></script>
-    <script src='fullcalendar/daygrid/main.js'></script>
-    
-</head>
-
-<body>
+{% extends 'base.html' %}
+{% block content %}
     {% if session['user_id'] == cal.user_id %}
         <h1>{{ cal.name }}</h1>
+        <div id="calendar"></div>
     {% else %}
         <p>Please login to view calendar</p>
     {% endif %}
 
-  <script>
-        
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      plugins: [ 'dayGrid' ],
-      defaultView: 'dayGridMonth'
-    });
+    <script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      const workouts = {{ workouts | tojson }};
+      // let wo_events = [];
+      // for (let workout of workouts){
+      //  wo_events.push({
+      //   id: workout['id'],
+      //   title: workout['title'],
+      //   start: workout['start']
+      // }) 
+      // }
+      // console.log(wo_events)
+      
+      var calendarEl = document.getElementById('calendar');
 
-    </script>
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+        defaultView: 'dayGridMonth',
+        defaultDate: workouts[0]['start'],
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        timeZone: 'UTC',
+        events: workouts
+    
+    })
+    calendar.render();
+  })
+
+    </script> 
+
+  {% endblock %} 
+
+
   
-
-</body>
-</html>
