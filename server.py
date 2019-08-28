@@ -211,7 +211,8 @@ def view_cal(cal_id):
         wo_dict_list.append({
             'id': workout.workout_id,
             'title': workout.name,
-            'start': workout.start_time.isoformat(' ')[:10]
+            'start': workout.start_time.isoformat(),
+            'wolayout': workout.layout
             })
     print(wo_dict_list)
 

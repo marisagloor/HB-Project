@@ -15,20 +15,15 @@
     
     document.addEventListener('DOMContentLoaded', function() {
       const workouts = {{ workouts | tojson }};
-      // let wo_events = [];
-      // for (let workout of workouts){
-      //  wo_events.push({
-      //   id: workout['id'],
-      //   title: workout['title'],
-      //   start: workout['start']
-      // }) 
-      // }
-      // console.log(wo_events)
       
       var calendarEl = document.getElementById('calendar');
 
       var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+        eventClick: function(info) {
+          var eventObj = info.event;
+          alert(eventObj.title + "\nwarmup:" + eventObj.layout );
+        },
         defaultView: 'dayGridMonth',
         defaultDate: workouts[0]['start'],
         header: {
@@ -37,11 +32,12 @@
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         timeZone: 'UTC',
-        events: workouts
-    
-    })
+        events: workouts 
+      })
     calendar.render();
-  })
+    })
+
+
 
     </script> 
 
