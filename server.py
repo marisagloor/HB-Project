@@ -214,24 +214,24 @@ def view_cal(cal_id):
             'start': workout.start_time.isoformat(),
             'wolayout': workout.layout
             })
-    print(wo_dict_list)
-
 
     return render_template('calendar_details.html',
                             cal=cal,
                             workouts=wo_dict_list)
-    # return render_template('calendar_test.html')
 
 
-# @app.route('/create_event/<int:workout_id>')
-# def get_workout(workout_id):
-#     """Jsonify workout row for use in Javascript"""
-#     workout = Workout.query.get(workout_id)
+@app.route('/workout_event')
+def get_workout():
+    """Jsonify workout row for use in Javascript"""
+    workout_id = request.args.get('id')
+    workout = Workout.query.get(workout_id)
 
-#     return jsonify(name=workout.name,
-#                     layout=workout.layout,
-#                     start_time=workout.start_time,
-#                     end_time=workout.end_time)
+    WO_dets={'name':workout.name,
+                    'layout': workout.layout,
+                    'start_time': workout.start_time,
+                    'end_time' : workout.end_time}
+
+    return jsonify(WO_dets)
 
 
 @app.route('/login')

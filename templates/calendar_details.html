@@ -10,9 +10,17 @@
     {% else %}
         <p>Please login to view calendar</p>
     {% endif %}
+      
+
 
     <script>
     
+    function updateResults(response) {
+      alert(`This is a response`);
+
+      
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
       const workouts = {{ workouts | tojson }};
       
@@ -21,9 +29,12 @@
       var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
         eventClick: function(info) {
+          // info.jsEvent.preventDefault();
           var eventObj = info.event;
-          alert(eventObj.title + "\nwarmup:" + eventObj.layout );
+          // $.get('/workout_event', {'id' : eventObj.title }, updateResults());
+          alert(eventObj.title)
         },
+
         defaultView: 'dayGridMonth',
         defaultDate: workouts[0]['start'],
         header: {
