@@ -16,22 +16,31 @@
 
       <form id="event-form" method="POST" required>
             <p>Add a workout to this category: </p>
-            Title: <input type="text" name="title" required><br><br>
-            {% if base_wo.form_code == 'TIME' %}
-            Time length of this workout:
-                 <input type="text" name="body" required><br><br>
-                 <input type="hidden" name="repeats" value="1">
-            {% elif base_wo.form_code == 'DIS' %}
-                Distance length of this workout:
-                <input type="text" name="body" required><br><br>
-                <input type="hidden" name="repeats" value="1">
-            {% elif base_wo.form_code == 'REP' %}
-                Distance component of this workout:
-                <input type="text" name="body" required><br><br>
-                Number of repeats:
-                <input type="number" name="repeats" min="1">
-            {% endif %}
-            <button type="submit">ADD</button>  
+            <h3> {{ response.title }} </h3>
+            <table>
+              <tr>
+                <th> Workout layout </th>
+                <th> Enter Workout results </th>
+              </tr>
+              
+              <tr> 
+                <td> Warmup: {{ response.layout.warmup }} </td> 
+                <td> Body: {{ response.layout.body }} </td>
+                <td> Repeats: {{ response.layout.repetition }} </td>
+                <td> Cooldown: {{ response.layout.cooldown }} </td> 
+              </tr>
+              
+              <tr> 
+                <td> <input type="text" name="warmup-result" required><br><br> <td>
+                <td>
+                  {% for rep in response.layout.repetition %}
+                    <input type="text" name="body-result{{ rep }}" required><br><br>
+                  {% endfor%}
+                <td>
+                <input type="text" name="cooldown-result" required><br><br>
+              </tr>
+            </table>
+            <button type="submit">COMPLETE RUN</button>  
         </form>
 
       </div> 
