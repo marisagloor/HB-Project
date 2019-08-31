@@ -227,6 +227,7 @@ def get_workout():
     workout = Workout.query.get(workout_id)
 
     WO_dets={'name':workout.name,
+            'id': workout.workout_id,
                     'layout': workout.layout,
                     'start_time': workout.start_time,
                     'end_time' : workout.end_time}

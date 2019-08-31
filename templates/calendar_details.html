@@ -11,28 +11,57 @@
         <p>Please login to view calendar</p>
     {% endif %}
       
+    <div id="event-form-modal">
 
+
+      <form id="event-form" method="POST" required>
+            <p>Add a workout to this category: </p>
+            Title: <input type="text" name="title" required><br><br>
+            {% if base_wo.form_code == 'TIME' %}
+            Time length of this workout:
+                 <input type="text" name="body" required><br><br>
+                 <input type="hidden" name="repeats" value="1">
+            {% elif base_wo.form_code == 'DIS' %}
+                Distance length of this workout:
+                <input type="text" name="body" required><br><br>
+                <input type="hidden" name="repeats" value="1">
+            {% elif base_wo.form_code == 'REP' %}
+                Distance component of this workout:
+                <input type="text" name="body" required><br><br>
+                Number of repeats:
+                <input type="number" name="repeats" min="1">
+            {% endif %}
+            <button type="submit">ADD</button>  
+        </form>
+
+      </div> 
 
     <script>
     
-    function updateResults(response) {
-      alert(`This is a response`);
-
-      
-    }
+    
 
     document.addEventListener('DOMContentLoaded', function() {
+      function updateResults(response) {
+        console.log(response.layout.body)
+        const eventFormModal = document.querySelector("#event-form-modal");
+        const eventForm = document.querySelector("#event-form");
+        eventForm.setAttribute("action", `/add_wo_results/${response.wo_id}`);
+        // alert(`${response['layout']}`);  
+    }
+
       const workouts = {{ workouts | tojson }};
+      console.log('YAYYY', workouts[0]['wolayout'])
       
       var calendarEl = document.getElementById('calendar');
 
       var calendar = new FullCalendar.Calendar(calendarEl, {
         plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
         eventClick: function(info) {
-          // info.jsEvent.preventDefault();
+          info.jsEvent.preventDefault();
           var eventObj = info.event;
-          // $.get('/workout_event', {'id' : eventObj.title }, updateResults());
-          alert(eventObj.title)
+          let data = {'id': eventObj.id}
+          $.get('/workout_event', data, updateResults);
+
         },
 
         defaultView: 'dayGridMonth',
