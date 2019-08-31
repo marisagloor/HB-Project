@@ -33,10 +33,15 @@ class TestFlaskRoutes(unittest.TestCase):
 
         # Compare result.data with assert method
         self.assertIn(b'<h1>Sign-up Form</h1>', get_result.data)
-        self.assertIn(b'<p><a href="/categories"> View Workout Categories</a><p>', result.data)
+        self.assertIn(b'<p><a href="/categories"> View Workout Categories</a><p>', post_result.data)
 
 
     def test_add_workout_category(self):
         """Check that add_workout_category returns correct information"""
-        
+
+        client = server.app.test_client()
+
+        post_result = client.post('/add_workout_category', data{title: Runs, form: REP, wucd: time,})
+
+        self.assertIn(f"{b}'<h1>{ data.title }</h1>'", post_result.data)
         
