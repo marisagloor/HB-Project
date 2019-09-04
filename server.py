@@ -4,7 +4,7 @@ from flask import Flask, render_template, request, redirect, flash, session, jso
 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar, WorkoutForm, generate_calendar_workout
+from model import connect_to_db, db, User, BaseWorkout, Workout, CompletedWorkout, Calendar, WorkoutForm, generate_calendar_workout, Specifications
 
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -77,11 +77,6 @@ def add_base_wo():
 
     title = request.form.get('title')
     form = request.form.get('form')
-    wucd = request.form.get('wu_cd')
-    general_layout = {'warmup' : wucd, 
-                'components': [],
-                'cooldown': wucd
-                }
 
     str_days = [request.form.get(f'day{i}') for i in range(1, 8)]
     # retrieve html input for each day-> these are strings
@@ -98,8 +93,7 @@ def add_base_wo():
     # possible TODO - change 'user_id' cookie to a 'user' object cookie
 
     # Instantiate users base workout
-    base_wo = BaseWorkout(title=title, form_code=form, 
-                                layout_choices=general_layout, mon=days[0], 
+    base_wo = BaseWorkout(title=title, form_code=form, mon=days[0], 
                                 tue=days[1], wed=days[2],
                                 thu=days[3], fri=days[4], 
                                 sat=days[5], sun=days[6])
@@ -134,8 +128,12 @@ def add_bwo_layout_choices(base_id):
     base_wo = BaseWorkout.query.get(base_id)
     title = request.form.get('title')
     body = request.form.get('body')
-    repetition = int(request.form.get('repeats'))
-    base_wo.layout_choices['components'].append({'title': title, 'body': body, 'repetition': repetition})
+    repeats = int(request.form.get('repeats'))
+    wucd = request.form.get('wu_cd')
+
+    base_wo.specs.append(Specifications(user_id=session['user_id'], title=title, body=body, repeats=repeats, 
+                        warmup=wucd, cooldown=wucd))
+
     db.session.commit()
     # adds nested mutable dictionary within components list in layout_choices dictionary
 
@@ -158,7 +156,7 @@ def create_calendar():
     """Instantiate calendar and generate associated workout instances"""
 
     title = request.form.get('title')
-    cal = Calendar(user_id=session['user_id'], name=title)
+    cal = Calendar(user_id=session['user_id'], title=title)
     db.session.add(cal)
     db.session.commit()
     # instantiated calendar does not have columns for start-end dates ->
@@ -210,14 +208,15 @@ def view_cal(cal_id):
     for workout in workouts:
         wo_dict_list.append({
             'id': workout.workout_id,
-            'title': workout.name,
+            'title': workout.title,
             'start': workout.start_time.isoformat(),
             'wolayout': workout.layout
             })
 
     return render_template('calendar_details.html',
                             cal=cal,
-                            workouts=wo_dict_list)
+                            workouts=wo_dict_list,
+                            response=None)
 
 
 @app.route('/workout_event')
@@ -226,13 +225,25 @@ def get_workout():
     workout_id = request.args.get('id')
     workout = Workout.query.get(workout_id)
 
-    WO_dets={'name':workout.name,
+    WO_dets={'title':workout.title,
             'id': workout.workout_id,
                     'layout': workout.layout,
                     'start_time': workout.start_time,
                     'end_time' : workout.end_time}
 
     return jsonify(WO_dets)
+
+
+@app.route('/enter_wo_results/<int:wo_id>', methods=['POST'])
+def enter_results(wo_id):
+    workout = Workout.query.get(wo_id)
+    warmup = request.form.get('warmup-result')
+    cooldown = request.form.get('cooldown-result')
+    reps = [request.form.get(f'body-result{rep}') for rep in Range(workout.layout['repetition'])]
+    results = {'warmup': warmup, 'cooldown': cooldown, 'repeats': reps}
+
+    result = CompletedWorkout()
+
 
 
 @app.route('/login')

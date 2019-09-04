@@ -51,8 +51,7 @@ class BaseWorkout(db.Model):
     bw_id = db.Column(db.Integer, autoincrement=True, primary_key=True)  
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     form_code = db.Column(db.String(10), db.ForeignKey('forms.form_code'))
-    title = db.Column(db.String(30), nullable=False)
-    layout_choices = db.Column(NestedMutableJson, nullable=False)
+    title = db.Column(db.String(30), nullable=False) 
     mon = db.Column(db.Boolean, nullable=False)
     tue = db.Column(db.Boolean, nullable=False)
     wed = db.Column(db.Boolean, nullable=False)
@@ -68,7 +67,7 @@ class BaseWorkout(db.Model):
 
     def __repr__(self):
         """show info about user"""
-        return f"<BaseWorkout bw_id={self.bw_id} type={self.title}>"
+        return f"<BaseWorkout bw_id={self.bw_id} title={self.title}>"
 
     @classmethod
     def get_by_weekday(cls, user_id, weekday):
@@ -76,20 +75,44 @@ class BaseWorkout(db.Model):
         filter_dict = {
             'user_id': user_id,
             weekday: True
-
         }
 
         return cls.query.filter_by(**filter_dict).all()
 
+
+class Specifications(db.Model):
+    """specific wo details"""
+
+    __tablename__ = "specs"
+
+    spec_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    bw_id = db.Column(db.Integer, db.ForeignKey('base_workouts.bw_id'))
+    title = db.Column(db.String(30), nullable=False)
+    warmup = db.Column(db.String(15), nullable=False)
+    body = db.Column(db.String(15), nullable=False)
+    repeats = db.Column(db.Integer, nullable=False, default=1)
+    cooldown = db.Column(db.String(15), nullable=False)
+
+    base_workout = db.relationship("BaseWorkout", backref="specs")
+    user = db.relationship("User", backref="specs")
+
+    def __repr__(self):
+        """show info about user"""
+        return f"<Workout Specifications id={self.bw_id} type={self.title}>"
+
+
 def generate_calendar_workout(base_workout, cal, start_date):
     """Generate a workout on a given day"""
-    wo_details = copy(random.choice(base_workout.layout_choices['components']))
-    wo_details['warmup'] = base_workout.layout_choices['warmup']
-    wo_details['cooldown'] = base_workout.layout_choices['cooldown']
-    name = wo_details['title']
-    del wo_details['title']
+    spec = random.choice(base_workout.specs)
+    wo_details = {}
+    wo_details['warmup'] = spec.warmup
+    wo_details['cooldown'] = spec.cooldown
+    wo_details['body'] = spec.body
+    wo_details['repeats'] = spec.repeats
+    title = spec.title
 
-    base_workout.workouts.append(Workout(bw_id=base_workout.bw_id, name=name, 
+    base_workout.workouts.append(Workout(spec_id=spec.spec_id, title=title, 
         user_id=base_workout.user_id, calendar_id=cal.calendar_id, 
         layout=wo_details,
         start_time=start_date,
@@ -99,24 +122,23 @@ def generate_calendar_workout(base_workout, cal, start_date):
 
 
 
-
-
 class Workout(db.Model):
     """Scheduled workouts"""
 
     __tablename__ = "workouts"
 
     workout_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(50), nullable=False)
     bw_id = db.Column(db.Integer, db.ForeignKey('base_workouts.bw_id'))
+    spec_id = db.Column(db.Integer, db.ForeignKey('specs.spec_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     calendar_id = db.Column(db.Integer, db.ForeignKey('calendars.calendar_id'))
     # json dictionary of wo frame + frame values
     layout = db.Column(MutableJson, nullable=False)  # make this JSON column type
     """{ 
         warmup: time
-        component: time | distance
-        repetition: n times
+        body: time | distance
+        repeats: n times
         cooldown|time
 
     }"""
@@ -134,10 +156,13 @@ class Workout(db.Model):
     calendar = db.relationship("Calendar",
                                 backref=db.backref("workouts",
                                               order_by=start_time))
+    spec = db.relationship("Specifications", 
+                                backref=db.backref("workouts", 
+                                               order_by=start_time))
 
     def __repr__(self):
         """show info about user"""
-        return f"<Workout workout_id={self.workout_id} name={self.name}>"
+        return f"<Workout workout_id={self.workout_id} title={self.title}>"
     
 
 class CompletedWorkout(db.Model):
@@ -146,12 +171,13 @@ class CompletedWorkout(db.Model):
     __tablename__ = "results"
 
     result_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    title = db.Column(db.String(50), nullable=False)
     workout_id = db.Column(db.Integer, db.ForeignKey('workouts.workout_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     
     # json of layout frame keys and result values
 
-    result_values = db.Column(db.Integer, nullable=True)  # rename this to something more related to results
+    result_values = db.Column(NestedMutableJson, nullable=True)  # rename this to something more related to results
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now())
 
 
@@ -168,7 +194,7 @@ class CompletedWorkout(db.Model):
 
     def __repr__(self):
         """show info about completed workout"""
-        return f"<CompletedWorkout result_id={self.result_id} scheduled={workout.occurence} entered={self.enter_date}>"
+        return f"<CompletedWorkout result_id={self.result_id} scheduled={self.title} entered={self.created_at}>"
 
 
 class Calendar(db.Model):
@@ -177,19 +203,18 @@ class Calendar(db.Model):
     __tablename__ = "calendars"
 
     calendar_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    name = db.Column(db.String(50), nullable = False) # add calendar name column
+    title = db.Column(db.String(50), nullable = False) 
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
     user = db.relationship("User",
                            backref=db.backref("calendars",
-                                              order_by=name)) 
+                                              order_by=title)) 
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        return f"""<Calendar id={self.name} 
-                   user_id={self.user_id} 
-                   start_date={self.start_date}>"""
+        return f"""<Calendar id={self.title} 
+                   user_id={self.user_id}>"""
 
 
 

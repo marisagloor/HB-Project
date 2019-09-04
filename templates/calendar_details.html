@@ -5,18 +5,18 @@
 {% extends 'base.html' %}
 {% block content %}
     {% if session['user_id'] == cal.user_id %}
-        <h1>{{ cal.name }}</h1>
+        <h1>{{ cal.title }}</h1>
         <div id="calendar"></div>
     {% else %}
         <p>Please login to view calendar</p>
     {% endif %}
-      
+
+    <br><br><br>  
     <div id="event-form-modal">
 
 
-      <form id="event-form" method="POST" required>
-            <p>Add a workout to this category: </p>
-            <h3> {{ response.title }} </h3>
+      <form id="event-form" method="POST" disabled>
+            <h3 id="title"> </h3>
             <table>
               <tr>
                 <th> Workout layout </th>
@@ -24,24 +24,23 @@
               </tr>
               
               <tr> 
-                <td> Warmup: {{ response.layout.warmup }} </td> 
-                <td> Body: {{ response.layout.body }} </td>
-                <td> Repeats: {{ response.layout.repetition }} </td>
-                <td> Cooldown: {{ response.layout.cooldown }} </td> 
+                <td id="warmup"> Warmup:  </td> 
+                <td> <input type="text" name="warmup-result" required> <td>
+              </tr> 
+              <tr>
+                <td> <div id="body"> Body:</div>  <div id="repeats"> Repeats: </div> </td>
+                <td id="rep_results"> </td> 
               </tr>
-              
-              <tr> 
-                <td> <input type="text" name="warmup-result" required><br><br> <td>
-                <td>
-                  {% for rep in response.layout.repetition %}
-                    <input type="text" name="body-result{{ rep }}" required><br><br>
-                  {% endfor%}
-                <td>
-                <input type="text" name="cooldown-result" required><br><br>
+              <tr>
+                <td id="cooldown"> Cooldown: </td> 
+                <td><input type="text" name="cooldown-result" required></td>
               </tr>
+                
             </table>
-            <button type="submit">COMPLETE RUN</button>  
+            <button type="submit">COMPLETE RUN</button> 
+            
         </form>
+    
 
       </div> 
 
@@ -51,15 +50,27 @@
 
     document.addEventListener('DOMContentLoaded', function() {
       function updateResults(response) {
+        console.log(response)
         console.log(response.layout.body)
         const eventFormModal = document.querySelector("#event-form-modal");
         const eventForm = document.querySelector("#event-form");
-        eventForm.setAttribute("action", `/add_wo_results/${response.wo_id}`);
+        // $( eventForm ).data('response', response);
+        eventForm.setAttribute("action", `/enter_wo_results/${response.id}`);
         // alert(`${response['layout']}`);  
+        $("#title").append(response.title);
+        $("#warmup").append(response.layout.warmup);
+        $("#body").append(response.layout.body)
+        $("#repeats").append(response.layout.repeats)
+        $("#cooldown").append(response.layout.cooldown)
+        const repetition = Number(response.layout.repetition)
+
+        for (let rep = 0; rep < repetition; rep++) {
+          $("#rep_results").append(`<input type="text" name="body-result${rep}" required><br>`)
+        } 
     }
 
       const workouts = {{ workouts | tojson }};
-      console.log('YAYYY', workouts[0]['wolayout'])
+      // console.log('YAYYY', workouts[0]['wolayout'])
       
       var calendarEl = document.getElementById('calendar');
 

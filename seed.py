@@ -2,7 +2,7 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
 
 from sqlalchemy import func
-from model import User, BaseWorkout, Workout, Calendar, WorkoutForm, CompletedWorkout
+from model import User, BaseWorkout, Workout, Calendar, WorkoutForm, CompletedWorkout, Specifications
 
 from model import connect_to_db, db
 from server import app
@@ -56,38 +56,11 @@ def load_users():
 
 def load_base_workouts():
     """Load sample workouts"""
-    layout1 = {
-              'warmup': 'time',
-              'components': [{"title": "Mile repeats", "body": "1 mile", "repetition": 3},
-                            {"title": "1k repeats", "body": "1000m", "repetition": 5}, 
-                            {"title": "8k repeats", "body": "8000m", "repetition": 2}, 
-                            {"title": "10k repeats", "body": "10,000m", "repetition": 2}, 
-                            {"title": "5k repeats", "body": "5000m", "repetition": 3}, 
-                            {"title": "Long hill repeats", "body": "300m", "repetition": 5}],
-              'cooldown': 'time'
-    }
-
-    layout2 = {
-              'warmup': 'time',
-              'components': [{'title':'long run', 'body': '10k', "repetition": 1}],
-              'cooldown': 'time'
-    }
-    layout3 = {
-              'warmup': 'time',
-              'components': [{'title':'300m repeats', 'body': '300m', "repetition": 5}],
-              'cooldown': 'time'
-    }
-    layout4 = {
-              'warmup': 'time',
-              'components': [{'title':'Arcata forest trail', 'body': '1hr', "repetition": 1}],
-              'cooldown': 'time'
-    }
     
 
     workout1 = BaseWorkout(user_id=1,
                   title="LONG REPS",
                   form_code="REP",
-                  layout_choices=layout1,
                   mon=False,
                   tue=False,
                   wed=True,
@@ -98,7 +71,6 @@ def load_base_workouts():
     workout2 = BaseWorkout(user_id=1,
                   title="LONG RUNS",
                   form_code="DIS",
-                  layout_choices=layout2,
                   mon=True,
                   tue=False,
                   wed=False,
@@ -109,7 +81,6 @@ def load_base_workouts():
     workout3 = BaseWorkout(user_id=2,
                   title="TRACK RUNS",
                   form_code="REP",
-                  layout_choices=layout3,
                   mon=False,
                   tue=False,
                   wed=True,
@@ -120,7 +91,6 @@ def load_base_workouts():
     workout4 = BaseWorkout(user_id=2,
                   title="TRAIL RUNS",
                   form_code="TIME",
-                  layout_choices=layout4,
                   mon=True,
                   tue=False,
                   wed=True,
@@ -138,13 +108,39 @@ def load_base_workouts():
     db.session.commit()
 
 
+def load_specifications():
+
+    spec1 = Specifications(user_id=1, bw_id=1, title="Mile repeats", body="1 mile", repeats=3, warmup="time", cooldown="time")
+    spec2 = Specifications(user_id=1, bw_id=1, title="1k repeats", body="1000m", repeats=5, warmup="time", cooldown="time")
+    spec3 = Specifications(user_id=1, bw_id=1, title="8k repeats", body="8000m", repeats=2, warmup="time", cooldown="time")
+    spec4 = Specifications(user_id=1, bw_id=1, title="10k repeats", body="10000m", repeats=2, warmup="time", cooldown="time")
+    spec5 = Specifications(user_id=1, bw_id=1, title="5k repeats", body="5000m", repeats=3, warmup="time", cooldown="time")
+    spec6 = Specifications(user_id=1, bw_id=1, title="Long hill repeats", body="300m", repeats=5, warmup="distance", cooldown="distance")
+
+    spec7 = Specifications(user_id=1, bw_id=2, title="Long run", body="10k", warmup="time", cooldown="time")
+
+    spec8 = Specifications(user_id=2, bw_id=3, title="300m repeats", body="300m", repeats=5, warmup="distance", cooldown="distance")
+
+    spec9 = Specifications(user_id=1, bw_id=2, title="Arcata forest trail", body="1hr", warmup="time", cooldown="time")
+
+    db.session.add(spec1)
+    db.session.add(spec2)
+    db.session.add(spec3)
+    db.session.add(spec4)
+    db.session.add(spec5)
+    db.session.add(spec6)
+    db.session.add(spec7)
+    db.session.add(spec8)
+    db.session.add(spec9)
+    db.session.commit()
+
 def load_calendar():
     """Load a calendar into database."""
 
     
 
-    calendar = Calendar(name="Fall Season",
-                    user_id=2)
+    calendar = Calendar(title="Fall Season",
+                    user_id=1)
 
     db.session.add(calendar)
 
@@ -153,9 +149,8 @@ def load_calendar():
 def load_workout():
     """Create one workout"""
 
-
-    jdict = {"WU":"time", "Component":"distance", "repeats":1, "CD":"time"}
-    workout = Workout(name="100mreps", bw_id=3, user_id=2, calendar_id=1, 
+    jdict = {"warmup":"time", "body":"5000m", "repeats":1, "cooldown":"time"}
+    workout = Workout(title="5k repeats", bw_id=1, user_id=1, spec_id=5, calendar_id=1, 
                         layout=jdict, start_time=datetime.date.today(), end_time=datetime.date.today())
     db.session.add(workout)
     db.session.commit()
@@ -164,6 +159,7 @@ def load_workout():
 def empty_all_tables():
     """Clears data"""
     Workout.query.delete()
+    Specifications.query.delete()
     Calendar.query.delete()
     BaseWorkout.query.delete()
     User.query.delete()
@@ -195,7 +191,8 @@ if __name__ == "__main__":
         load_users()
         load_forms()
         load_base_workouts()
-        # load_calendar()
-        # load_workout()
+        load_specifications()
+        load_calendar()
+        load_workout()
         # set_val_user_id()
 

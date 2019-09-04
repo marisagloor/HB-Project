@@ -9,6 +9,14 @@
     <form action="/add_workout_specs/{{ base_wo.bw_id }}" method="POST" required>
         <p>Add a workout to this category: </p>
         Title: <input type="text" name="title" required><br><br>
+
+        <p>How will warm-ups and cool-downs be measured?<p>
+        <select name="wu_cd">
+            <option value="None"> No warm-up/cool-down </option>
+            <option value="Time"> Time </option>
+            <option value="Distance"> Distance </option>
+        </select><br><br>
+
         {% if base_wo.form_code == 'TIME' %}
         Time length of this workout:
              <input type="text" name="body" required><br><br>
@@ -23,12 +31,13 @@
             Number of repeats:
             <input type="number" name="repeats" min="1">
         {% endif %}
+
         <button type="submit">ADD</button>  
     </form>
     <h3>Workouts</h3>
-    {% for wo in base_wo.layout_choices['components'] %}
-    <h4>{{ wo['title'] }}</h4>   
-    <p>{{ wo['body'] }}, {{ wo['repetition'] }} times</p><br><br> 
+    {% for wo in base_wo.specs %}
+    <h4>{{ wo.title }}</h4>   
+    <p>{{ wo.body }}, {{ wo.repeats }} times</p><br><br> 
 
     {% endfor %}
 
