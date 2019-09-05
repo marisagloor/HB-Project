@@ -236,14 +236,17 @@ def get_workout():
 
 @app.route('/enter_wo_results/<int:wo_id>', methods=['POST'])
 def enter_results(wo_id):
+    """Enter input from form into database"""
     workout = Workout.query.get(wo_id)
     warmup = request.form.get('warmup-result')
     cooldown = request.form.get('cooldown-result')
-    reps = [request.form.get(f'body-result{rep}') for rep in Range(workout.layout['repetition'])]
-    results = {'warmup': warmup, 'cooldown': cooldown, 'repeats': reps}
+    reps = [request.form.get(f'body-result{rep}') for rep in range(workout.layout['repeats'])]
+    results = {'warmup': warmup, 'cooldown': cooldown, 'body': workout.layout['body'], 'repeats': reps}
 
-    result = CompletedWorkout()
+    result = workout.result.append(CompletedWorkout(result_values=results, user_id=session['user_id'], title=workout.title))
+    db.session.commit()
 
+    return redirect(f'/calendars/{workout.cal_id}')
 
 
 @app.route('/login')

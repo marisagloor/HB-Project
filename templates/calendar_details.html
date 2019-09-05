@@ -62,7 +62,7 @@
         $("#body").append(response.layout.body)
         $("#repeats").append(response.layout.repeats)
         $("#cooldown").append(response.layout.cooldown)
-        const repetition = Number(response.layout.repetition)
+        const repetition = Number(response.layout.repeats)
 
         for (let rep = 0; rep < repetition; rep++) {
           $("#rep_results").append(`<input type="text" name="body-result${rep}" required><br>`)
