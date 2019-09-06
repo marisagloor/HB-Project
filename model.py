@@ -89,10 +89,12 @@ class Specifications(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     bw_id = db.Column(db.Integer, db.ForeignKey('base_workouts.bw_id'))
     title = db.Column(db.String(30), nullable=False)
-    warmup = db.Column(db.String(15), nullable=False)
-    body = db.Column(db.String(15), nullable=False)
+    warmup = db.Column(db.Integer, nullable=False)
+    wc_units = db.Column(db.String(15), nullable=False)
+    body = db.Column(db.Integer, nullable=False)
+    units= db.Column(db.String(15), nullable=False)
     repeats = db.Column(db.Integer, nullable=False, default=1)
-    cooldown = db.Column(db.String(15), nullable=False)
+    cooldown = db.Column(db.Integer, nullable=False)
 
     base_workout = db.relationship("BaseWorkout", backref="specs")
     user = db.relationship("User", backref="specs")
@@ -107,8 +109,10 @@ def generate_calendar_workout(base_workout, cal, start_date):
     spec = random.choice(base_workout.specs)
     wo_details = {}
     wo_details['warmup'] = spec.warmup
+    wo_details['wc_units'] = spec.wc_units
     wo_details['cooldown'] = spec.cooldown
     wo_details['body'] = spec.body
+    wo_details['units'] = spec.units
     wo_details['repeats'] = spec.repeats
     title = spec.title
 
@@ -137,7 +141,9 @@ class Workout(db.Model):
     layout = db.Column(MutableJson, nullable=False)  # make this JSON column type
     """{ 
         warmup: time
+        wc_units: mi,km,min
         body: time | distance
+        units: mi,km,m, min
         repeats: n times
         cooldown|time
 

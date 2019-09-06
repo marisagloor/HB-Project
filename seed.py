@@ -110,18 +110,18 @@ def load_base_workouts():
 
 def load_specifications():
 
-    spec1 = Specifications(user_id=1, bw_id=1, title="Mile repeats", body="1 mile", repeats=3, warmup="time", cooldown="time")
-    spec2 = Specifications(user_id=1, bw_id=1, title="1k repeats", body="1000m", repeats=5, warmup="time", cooldown="time")
-    spec3 = Specifications(user_id=1, bw_id=1, title="8k repeats", body="8000m", repeats=2, warmup="time", cooldown="time")
-    spec4 = Specifications(user_id=1, bw_id=1, title="10k repeats", body="10000m", repeats=2, warmup="time", cooldown="time")
-    spec5 = Specifications(user_id=1, bw_id=1, title="5k repeats", body="5000m", repeats=3, warmup="time", cooldown="time")
-    spec6 = Specifications(user_id=1, bw_id=1, title="Long hill repeats", body="300m", repeats=5, warmup="distance", cooldown="distance")
+    spec1 = Specifications(user_id=1, bw_id=1, title="Mile repeats", body=1, units="mi", repeats=3, warmup=.5, cooldown=.5, wc_units="mi")
+    spec2 = Specifications(user_id=1, bw_id=1, title="1k repeats", body=1, units="km", repeats=5, warmup=.1, cooldown=.1, wc_units="km")
+    spec3 = Specifications(user_id=1, bw_id=1, title="8k repeats", body=8, units="km" ,repeats=2, warmup=1, cooldown=1, wc_units="mi")
+    spec4 = Specifications(user_id=1, bw_id=1, title="10k repeats", body=10, units="km", repeats=2, warmup=1, cooldown=1, wc_units="mi")
+    spec5 = Specifications(user_id=1, bw_id=1, title="5k repeats", body=5, units="km", repeats=3, warmup=10, cooldown=10, wc_units="min")
+    spec6 = Specifications(user_id=1, bw_id=1, title="Long hill repeats", body=300, units="m", repeats=5, warmup=.5, cooldown=.5, wc_units="mi")
 
-    spec7 = Specifications(user_id=1, bw_id=2, title="Long run", body="10k", warmup="time", cooldown="time")
+    spec7 = Specifications(user_id=1, bw_id=2, title="Long run", body=10, units="km", warmup=.5, cooldown=.5, wc_units="mi")
 
-    spec8 = Specifications(user_id=2, bw_id=3, title="300m repeats", body="300m", repeats=5, warmup="distance", cooldown="distance")
+    spec8 = Specifications(user_id=2, bw_id=3, title="300m repeats", body=300, units="m", repeats=5, warmup=5, cooldown=5, wc_units="min")
 
-    spec9 = Specifications(user_id=1, bw_id=2, title="Arcata forest trail", body="1hr", warmup="time", cooldown="time")
+    spec9 = Specifications(user_id=1, bw_id=2, title="Arcata forest trail", body=8, units="mi", warmup=.5, cooldown=.5, wc_units="mi")
 
     db.session.add(spec1)
     db.session.add(spec2)
@@ -149,8 +149,8 @@ def load_calendar():
 def load_workout():
     """Create one workout"""
 
-    jdict = {"warmup":"time", "body":"5000m", "repeats":1, "cooldown":"time"}
-    workout = Workout(title="5k repeats", bw_id=1, user_id=1, spec_id=5, calendar_id=1, 
+    jdict = {"warmup":.5, "body":1, "units": "mi", "repeats":1, "cooldown":.5, "wc_units": "mi" }
+    workout = Workout(title="Mile repeats", bw_id=1, user_id=1, spec_id=1, calendar_id=1, 
                         layout=jdict, start_time=datetime.date.today(), end_time=datetime.date.today())
     db.session.add(workout)
     db.session.commit()

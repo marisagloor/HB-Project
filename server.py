@@ -127,12 +127,14 @@ def add_bwo_layout_choices(base_id):
 
     base_wo = BaseWorkout.query.get(base_id)
     title = request.form.get('title')
-    body = request.form.get('body')
+    body = int(request.form.get('body'))
+    units = request.form.get('units')
     repeats = int(request.form.get('repeats'))
-    wucd = request.form.get('wu_cd')
+    wucd = int(request.form.get('wu_cd'))
+    wc_units = request.form.get('wc_units')
 
-    base_wo.specs.append(Specifications(user_id=session['user_id'], title=title, body=body, repeats=repeats, 
-                        warmup=wucd, cooldown=wucd))
+    base_wo.specs.append(Specifications(user_id=session['user_id'], title=title, body=body, units=units,
+                                     repeats=repeats, warmup=wucd, cooldown=wucd, wc_units=wc_units))
 
     db.session.commit()
     # adds nested mutable dictionary within components list in layout_choices dictionary
@@ -215,8 +217,7 @@ def view_cal(cal_id):
 
     return render_template('calendar_details.html',
                             cal=cal,
-                            workouts=wo_dict_list,
-                            response=None)
+                            workouts=wo_dict_list)
 
 
 @app.route('/workout_event')
@@ -289,6 +290,12 @@ def logout():
 
     return redirect('/')
         
+
+
+
+# TODO decorator to check login
+
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
