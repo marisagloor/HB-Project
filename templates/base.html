@@ -7,6 +7,7 @@
   <link href="https://unpkg.com/@fullcalendar/core@4.3.1/main.min.css" rel="stylesheet">
   <link href="https://unpkg.com/@fullcalendar/daygrid@4.3.0/main.min.css" rel="stylesheet">
   <link href="https://unpkg.com/@fullcalendar/timegrid@4.3.0/main.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
   <script src="https://unpkg.com/@fullcalendar/core@4.3.1/main.min.js"></script>
   <script src="https://unpkg.com/@fullcalendar/interaction@4.3.0/main.min.js"></script>
@@ -14,18 +15,56 @@
   <script src="https://unpkg.com/@fullcalendar/timegrid@4.3.0/main.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" 
   crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
 
-  {% if session['login_status'] == True %}
-  <form action="/logout">
-      <button type="submit">Logout</button>
-  </form>
-  {% endif %}
 
 </head>
 
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="/">Home</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
 
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/categories">Categories <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/calendars">Calendars</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Create
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="add_workout_category">Add Category</a>
+          <a class="dropdown-item" href="add_calendar">Create Calendar</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#">Disabled</a>
+      </li>
+    </ul>
+    {% if session['login_status'] == False %}
+    <form class="florm-inline my-2 my-lg-0" action="/login">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Login</button>
+    </form>
+    <form class="florm-inline my-2 my-lg-0" action="/register">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Signup</button>
+    </form>
+    {% else %}
+    <form class="form-inline my-2 my-lg-0" action="/logout">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Logout</button>
+    </form>
+    {% endif %}
+  </div>
+</nav>
 <!-- Show flashed messages -->
   {% with messages = get_flashed_messages() %}
       {% for message in messages %}
@@ -37,6 +76,7 @@
   
 
   {% block content %} put your content here {% endblock %}
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -220,7 +220,7 @@ def view_cal(cal_id):
                             workouts=wo_dict_list)
 
 
-@app.route('/workout_event')
+@app.route('/workout_event.json')
 def get_workout():
     """Jsonify workout row for use in Javascript"""
     workout_id = request.args.get('id')
@@ -239,15 +239,71 @@ def get_workout():
 def enter_results(wo_id):
     """Enter input from form into database"""
     workout = Workout.query.get(wo_id)
-    warmup = request.form.get('warmup-result')
-    cooldown = request.form.get('cooldown-result')
-    reps = [request.form.get(f'body-result{rep}') for rep in range(workout.layout['repeats'])]
-    results = {'warmup': warmup, 'cooldown': cooldown, 'body': workout.layout['body'], 'repeats': reps}
+    if workout.layout['wc_units'] == "min":
+        warmup = request.form.get('wu')
+        cooldown = request.form.get('cd')
+        wc_units = request.form.get('wc_result_units')
 
-    result = workout.result.append(CompletedWorkout(result_values=results, user_id=session['user_id'], title=workout.title))
+    else:
+        warmup = int(request.form.get('min-wu-result'))
+        print(warmup)
+        wusec = int(request.form.get('sec-wu-result'))
+        warmup = 60 * warmup
+        warmup += wusec
+        cooldown = int(request.form.get('min-cd-result'))
+        cdsec = int(request.form.get('sec-cd-result'))
+        cooldown *= 60 * warmup
+        cooldown += cdsec
+        wc_units = request.form.get('wc_result_units')
+    if workout.layout["units"] == "min":
+        reps = [request.form.get(f'body-result{rep}') for rep in range(workout.layout['repeats'])]
+    else:
+        reps = []
+        for rep in range(workout.layout['repeats']):
+            mins = request.form.get(f'min-body-result{rep}')
+            print("mins:", mins)
+            secs = request.form.get(f'sec-body-result{rep}')
+            print("secs:", secs)
+            time = (mins * 60) + secs
+            reps.append(time)
+    results = {'warmup': warmup, 'cooldown': cooldown, 'wc_units': wc_units, 'body': workout.layout['body'], 'results': reps}
+
+    result = workout.result.append(CompletedWorkout(result_values=results, 
+                            user_id=session['user_id'], title=workout.title, 
+                            spec_id=workout.spec_id))
     db.session.commit()
 
-    return redirect(f'/calendars/{workout.cal_id}')
+    return redirect(f'/calendars/{workout.calendar_id}')
+
+
+@app.route('/repeated_workouts.json')
+def get_chartable_wo():
+    """Gets users specific workouts that have multiple results"""
+    user = User.query.get(session['user_id'])
+    for spec in user.specs:
+        if len(spec.results) > 1:
+            return jsonify(get_result_data(spec.spec_id))
+
+
+@app.route('/results.json/<int:spec_id>')
+def get_result_data(spec_id):
+    """Return data about results."""
+    spec = Specifications.query.get(spec_id)
+    # BAD RUNTIME - OPTIMIZE
+    for result in spec.results:
+        data_dict['labels'].append(f"{result.created_at}")
+        data_dict['data'].append(result.result_values['results'][0])
+
+    data_dict = {
+                "labels": [],
+                "datasets": [   { "data": [],
+                    "backgroundColor": ["#FF6384",
+                            "#36A2EB",],
+                    "hoverBackgroundColor": ["#FF6384",
+                            "#36A2EB",] }     ]
+            }
+
+    return data_dict
 
 
 @app.route('/login')

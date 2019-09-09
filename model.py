@@ -180,7 +180,7 @@ class CompletedWorkout(db.Model):
     title = db.Column(db.String(50), nullable=False)
     workout_id = db.Column(db.Integer, db.ForeignKey('workouts.workout_id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    
+    spec_id = db.Column(db.Integer, db.ForeignKey('specs.spec_id'))
     # json of layout frame keys and result values
 
     result_values = db.Column(NestedMutableJson, nullable=True)  # rename this to something more related to results
@@ -188,6 +188,7 @@ class CompletedWorkout(db.Model):
 
 
     workout = db.relationship("Workout", backref="result")
+    spec = db.relationship("Specifications", backref="results")
 
     user = db.relationship("User",
                                backref=db.backref("results",
