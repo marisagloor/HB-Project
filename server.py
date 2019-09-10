@@ -240,8 +240,8 @@ def enter_results(wo_id):
     """Enter input from form into database"""
     workout = Workout.query.get(wo_id)
     if workout.layout['wc_units'] == "min":
-        warmup = request.form.get('wu')
-        cooldown = request.form.get('cd')
+        warmup = int(request.form.get('wu'))
+        cooldown = int(request.form.get('cd'))
         wc_units = request.form.get('wc_result_units')
 
     else:
@@ -249,10 +249,11 @@ def enter_results(wo_id):
         print(warmup)
         wusec = int(request.form.get('sec-wu-result'))
         warmup = 60 * warmup
+        print(warmup)
         warmup += wusec
         cooldown = int(request.form.get('min-cd-result'))
         cdsec = int(request.form.get('sec-cd-result'))
-        cooldown *= 60 * warmup
+        cooldown = 60 * cooldown
         cooldown += cdsec
         wc_units = request.form.get('wc_result_units')
     if workout.layout["units"] == "min":
@@ -260,11 +261,12 @@ def enter_results(wo_id):
     else:
         reps = []
         for rep in range(workout.layout['repeats']):
-            mins = request.form.get(f'min-body-result{rep}')
+            mins = int(request.form.get(f'min-body-result{rep}'))
             print("mins:", mins)
-            secs = request.form.get(f'sec-body-result{rep}')
+            secs = int(request.form.get(f'sec-body-result{rep}'))
             print("secs:", secs)
             time = (mins * 60) + secs
+            print(time)
             reps.append(time)
     results = {'warmup': warmup, 'cooldown': cooldown, 'wc_units': wc_units, 'body': workout.layout['body'], 'results': reps}
 
