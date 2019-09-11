@@ -6,46 +6,50 @@
 {% block content %}
     {% if session['user_id'] == cal.user_id %}
         <h1>{{ cal.title }}</h1>
-        <div id="calendar"></div>
+        <div class="col-8" id="calendar"></div>
     {% else %}
         <p>Please login to view calendar</p>
     {% endif %}
 
     <br><br><br>  
-    <div id="event-form-modal">
+    <div class="modal fade" id="event-form-modal" role="dialog">
+      <div class="modal-dialog">
 
-
-      <form id="event-form" method="POST" disabled>
-            <h3 id="title"> </h3>
-            <table>
-              <tr>
-                <th> Workout layout </th>
-                <th> Enter Workout results </th>
-                <th> Result units </th>  
-              </tr>
-              
-              <tr> 
-                <td id="warmup"> Warmup:  </td> 
-                <td id="wu_units"> <td>
-                <td class="wc_result_units" > </td>
-              </tr> 
-              <tr>
-                <td> <div id="body"> Body:</div>  <div id="repeats"> Repeats: </div> </td>
-                <td id="rep_results"> </td> 
-                <td id="result_units"></td>
-              </tr>
-              <tr>
-                <td id="cooldown"> Cooldown: </td> 
-                <td id="cd_units"></td>
-                <td class="wc_result_units" > </td>
-              </tr>
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <form id="event-form" method="POST" disabled>
+              <h3 id="title"> </h3>
+              <table>
+                <tr>
+                  <th> Workout layout </th>
+                  <th> Enter Workout results </th>
+                  <th> Result units </th>  
+                </tr>
                 
-            </table>
-            <button type="submit">COMPLETE RUN</button> 
-            
-        </form>
-    
-
+                <tr> 
+                  <td id="warmup"> Warmup:  </td> 
+                  <td id="wu_units"> <td>
+                  <td class="wc_result_units" > </td>
+                </tr> 
+                <tr>
+                  <td> <div id="body"> Body:</div>  <div id="repeats"> Repeats: </div> </td>
+                  <td id="rep_results"> </td> 
+                  <td id="result_units"></td>
+                </tr>
+                <tr>
+                  <td id="cooldown"> Cooldown: </td> 
+                  <td id="cd_units"></td>
+                  <td class="wc_result_units" > </td>
+                </tr>
+                  
+              </table>
+              <button type="submit">COMPLETE RUN</button> 
+                  
+              </form>
+      </div>
+      </div>
+      </div>
       </div> 
 
     <script>
@@ -80,10 +84,10 @@
         }
         else {
           for (let rep = 0; rep < repetition; rep++) {
-          $("#rep_results").append(`<input type="number" name="min-body-result${rep}" width="100"required>minutes
-            <input type="number" name="sec-body-result${rep}" width="100" value="0" min="0" required>seconds<br>`);
+          $("#rep_results").append(`<input type="number" name="min-body-result${rep}" width="100"required />minutes
+            <input type="number" name="sec-body-result${rep}" width="100" value="0" min="0" required />seconds<br>`);
         }
-        $("#result_units").append('<input type="hidden" name="result_units value="sec">')
+        $("#result_units").append('<input type="hidden" name="result_units value="sec" />')
         }
 
         if (response.layout.wc_units == "min"){
@@ -98,11 +102,11 @@
         } 
         else {
           $("#wu_units").append(`<input type="number" name="min-wu-result" width="100" required> minutes
-            <input type="number" name="sec-wu-result" width="100" value="0" min="0" required>seconds<br>`);
+            <input type="number" name="sec-wu-result" width="100" value="0" min="0" required/>seconds<br>`);
 
-          $("#cd_units").append(`<input type="number" name="min-cd-result" width="100" required> minutes
-            <input type="number" name="sec-cd-result" width="100" value="0" min="0" required>seconds<br>`);
-          $(".wc_result_units").append('<input type="hidden" name="wc_result_units value="sec">');
+          $("#cd_units").append(`<input type="number" name="min-cd-result" width="100" required/> minutes
+            <input type="number" name="sec-cd-result" width="100" value="0" min="0" required/>seconds<br>`);
+          $(".wc_result_units").append('<input type="hidden" name="wc_result_units value="sec"/>');
         }
        
         // for (let rep = 0; rep < repetition; rep++) {
@@ -110,6 +114,7 @@
         // } 
         // if (response.layout.units == "min"){}
         // else {}
+        $("#event-form-modal").modal()
         
     }
 

@@ -268,7 +268,8 @@ def enter_results(wo_id):
             time = (mins * 60) + secs
             print(time)
             reps.append(time)
-    results = {'warmup': warmup, 'cooldown': cooldown, 'wc_units': wc_units, 'body': workout.layout['body'], 'results': reps}
+    units = request.form.get('result_units')
+    results = {'warmup': warmup, 'cooldown': cooldown, 'wc_units': wc_units, 'body': workout.layout['body'], 'units': units, 'results': reps}
 
     result = workout.result.append(CompletedWorkout(result_values=results, 
                             user_id=session['user_id'], title=workout.title, 
