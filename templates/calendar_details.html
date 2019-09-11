@@ -6,7 +6,7 @@
 {% block content %}
     {% if session['user_id'] == cal.user_id %}
         <h1>{{ cal.title }}</h1>
-        <div class="col-8" id="calendar"></div>
+         <div class="cal-container"><div class="col-8 offset-2" id="calendar"></div></div>
     {% else %}
         <p>Please login to view calendar</p>
     {% endif %}

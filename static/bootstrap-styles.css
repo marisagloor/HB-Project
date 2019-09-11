@@ -1,0 +1,52 @@
+/*   Sitewide  */
+
+html {
+    background: url(circle-blues.png) center center;
+    background-repeat: repeat-y;
+    /*background-color: red;*/
+    background-size: cover;
+
+}
+
+.navbar {
+    background-color: #C95A5A;
+    color: white;
+    border-radius: 0px;
+}
+ 
+.navbar-brand{
+    color: #c4ddf3;
+}
+h1 {
+    color: #649367;
+    font-family:'Saira Stencil One', cursive;
+}
+
+.navbar-nav>li>a, .navbar-dark .navbar-nav .nav-link {
+    color: white;
+}
+
+.cal-container {
+    background: url(cork-board.png) center center;
+    background-repeat: repeat-y;
+    /*background-color: red;*/
+    background-size: cover;
+}
+
+#calendar{
+    background: url(ep_naturalwhite.png) center center;
+    background-repeat: repeat-y;
+    /*background-color: red;*/
+    background-size: cover;
+}
+
+section {
+    margin-top: 50px;
+}
+
+/*.container {
+  background: url(pattern.png) no-repeat center center;
+  background-color: red;
+  background-size: cover;
+}
+*/
