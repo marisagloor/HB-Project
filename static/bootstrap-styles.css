@@ -1,15 +1,19 @@
 /*   Sitewide  */
 
 html {
-    background: url(circle-blues.png) center center;
+    background: url(ripples.png) center center;
+    background-color: grey;
     background-repeat: repeat-y;
     /*background-color: red;*/
     background-size: cover;
 
 }
+body{
+    background-color: #f3a199;
+}
 
 .navbar {
-    background-color: #C95A5A;
+    background: url(prism.png);
     color: white;
     border-radius: 0px;
 }
@@ -18,8 +22,10 @@ html {
     color: #c4ddf3;
 }
 h1 {
+    text-align: center;
     color: #649367;
     font-family:'Saira Stencil One', cursive;
+    background-color: #f3a199;
 }
 
 .navbar-nav>li>a, .navbar-dark .navbar-nav .nav-link {
@@ -29,8 +35,12 @@ h1 {
 .cal-container {
     background: url(cork-board.png) center center;
     background-repeat: repeat-y;
-    /*background-color: red;*/
+    background-color: #f3a199;
     background-size: cover;
+    padding: 20px;
+    border-style: solid;
+    border-width: 35px;
+    border-color: #6f401fd1;
 }
 
 #calendar{
