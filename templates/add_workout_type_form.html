@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>New Workout Type</h1>
+<h2>New Workout Type</h2>
 
 {% if session['login_status'] == True %}
     <form action="/add_workout_category" method="POST" required>

@@ -2,14 +2,16 @@
 
 html {
     background: url(ripples.png) center center;
-    background-color: grey;
+    background-color: #f3a19975;;
     background-repeat: repeat-y;
     /*background-color: red;*/
     background-size: cover;
 
 }
 body{
-    background-color: #f3a199;
+  /*  background-color: #f3a199;*/
+  background-color: #f3a19975;
+  padding-bottom: 100%;
 }
 
 .navbar {
@@ -23,11 +25,17 @@ body{
 }
 h1 {
     text-align: center;
-    color: #649367;
+    /*color: #649367;*/
+    color: #964242;
     font-family:'Saira Stencil One', cursive;
-    background-color: #f3a199;
+    /*background-color: #f3a199;*/
+    /*background-color: #f3a19975;*/
 }
 
+h2 {
+    color: #964242;
+    font-family:'Saira Stencil One', cursive;  
+}
 .navbar-nav>li>a, .navbar-dark .navbar-nav .nav-link {
     color: white;
 }
@@ -48,6 +56,12 @@ h1 {
     background-repeat: repeat-y;
     /*background-color: red;*/
     background-size: cover;
+}
+
+#home_img {
+    background-image: url(home.jpg) center center;
+    background-repeat: repeat-y;
+
 }
 
 section {

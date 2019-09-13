@@ -29,11 +29,18 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
-
+    user = None
+    cal = None
+    wo_dict_list = None
     if not 'login_status' in session:
         session['login_status'] = False
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if len(user.calendars) > 0:
+            cal = user.calendars[-1]
+            wo_dict_list = cal.create_cal_wo_dict()
 
-    return render_template('homepage.html')
+    return render_template('homepage.html', cal=cal, workouts=wo_dict_list)
 
 
 @app.route('/register', methods=['GET'])
@@ -207,15 +214,16 @@ def view_cal(cal_id):
     """show base workout details and show/add specific workout descriptions"""
 
     cal = Calendar.query.get(cal_id)
-    workouts = cal.workouts
-    wo_dict_list = []
-    for workout in workouts:
-        wo_dict_list.append({
-            'id': workout.workout_id,
-            'title': workout.title,
-            'start': workout.start_time.isoformat(),
-            'wolayout': workout.layout
-            })
+    # workouts = cal.workouts
+    # wo_dict_list = []
+    # for workout in workouts:
+    #     wo_dict_list.append({
+    #         'id': workout.workout_id,
+    #         'title': workout.title,
+    #         'start': workout.start_time.isoformat(),
+    #         'wolayout': workout.layout
+    #         })
+    wo_dict_list = cal.create_cal_wo_dict()
 
     return render_template('calendar_details.html',
                             cal=cal,
@@ -281,34 +289,46 @@ def enter_results(wo_id):
     return redirect(f'/calendars/{workout.calendar_id}')
 
 
-@app.route('/repeated_workouts.json')
+@app.route('/repeated_workouts')
 def get_chartable_wo():
     """Gets users specific workouts that have multiple results"""
     user = User.query.get(session['user_id'])
-    for spec in user.specs:
-        if len(spec.results) > 1:
-            return jsonify(get_result_data(spec.spec_id))
+    # for spec in user.specs:
+    #     if len(spec.results) > 1:
+            # return jsonify(get_result_data(spec.spec_id))
+
+    return render_template("results.html",
+                            specs=user.specs)
 
 
 @app.route('/results.json/<int:spec_id>')
 def get_result_data(spec_id):
     """Return data about results."""
     spec = Specifications.query.get(spec_id)
+    results = []
+    x_axis = []
     # BAD RUNTIME - OPTIMIZE
-    for result in spec.results:
+    for i, result in enumerate(spec.results):
+        x_axis.append(i)
+        results.append({
+            "body": result.workout.layout["body"],
+            "bunits": result.workout.layout['units'],
+            "result": result.result_values['results'],
+            "runits": result.result_values['units']
+            })
         data_dict['labels'].append(f"{result.created_at}")
         data_dict['data'].append(result.result_values['results'][0])
 
     data_dict = {
-                "labels": [],
-                "datasets": [   { "data": [],
+                "labels": x_axis,
+                "datasets": [   { "data": results,
                     "backgroundColor": ["#FF6384",
                             "#36A2EB",],
                     "hoverBackgroundColor": ["#FF6384",
                             "#36A2EB",] }     ]
             }
 
-    return data_dict
+    return jsonify(data_dict)
 
 
 @app.route('/login')

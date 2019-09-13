@@ -33,9 +33,12 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
+      {% if session['login_status'] == True %}
       <li class="nav-item active">
-        {% if session['login_status'] == True %}
-        <a class="nav-link" href="/categories">Categories <span class="sr-only">(current)</span></a>
+        <a class="nav-link" href="/categories">Categories</a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="/repeated_workouts">Completed Workouts</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/calendars">Calendars</a>
@@ -45,14 +48,9 @@
           Create
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="add_workout_category">Add Category</a>
-          <a class="dropdown-item" href="add_calendar">Create Calendar</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
+          <a class="dropdown-item nav-link" href="add_workout_category">Add Category</a>
+          <a class="dropdown-item nav-link" href="add_calendar">Create Calendar</a>
         </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#">Disabled</a>
       </li>
       {% endif %}
     </ul>

@@ -217,6 +217,20 @@ class Calendar(db.Model):
                            backref=db.backref("calendars",
                                               order_by=title)) 
 
+    def create_cal_wo_dict(self):
+        """Gather details of calendars workouts"""
+
+        wo_dict_list = []
+
+        for workout in self.workouts:
+            wo_dict_list.append({
+                'id': workout.workout_id,
+                'title': workout.title,
+                'start': workout.start_time.isoformat(),
+                'wolayout': workout.layout
+                })
+        return wo_dict_list
+
     def __repr__(self):
         """Provide helpful representation when printed."""
 

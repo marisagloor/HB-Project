@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>New Calendar</h1>
+<h2>New Calendar</h2>
 
 {% if session['login_status'] == True %}
     <form action="/add_calendar" method="POST" required>

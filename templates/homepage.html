@@ -1,23 +1,154 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>WORKOUT MY WORKOUT</h1>
-<!-- 
-  {% if session['login_status'] == True %}
-    <p><a href="/categories"> View Workout Categories</a><p>
 
-    <p><a href="/add_workout_category"> Add Workout Type</a><p>
-    
-    <p><a href="/add_calendar"> Create Calendar </a><p>
-
-    <p><a href="/calendars"> View Calendars</a><p>
-
+  {% if cal %}
+    <h1>{{ cal.title }}</h1>
+    <div class="cal-container"><div class="col-8 offset-2" id="calendar"></div></div>
   {% else %}
-    <p><a href="/register">Sign-up</a></p>
-
-    <p><a href="/login">Sign-in</a></p>
+    <div ><img src="static/home.jpg" class="col-8 offset-2"></div> 
   {% endif %}
- -->
 
+
+<div class="modal fade" id="event-form-modal" role="dialog">
+      <div class="modal-dialog">
+
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <form id="event-form" method="POST" disabled>
+              <h3 id="title"> </h3>
+              <table>
+                <tr>
+                  <th> Workout layout </th>
+                  <th> Enter Workout results </th>
+                  <th> Result units </th>  
+                </tr>
+                
+                <tr> 
+                  <td id="warmup"> Warmup:  </td> 
+                  <td id="wu_units"> <td>
+                  <td class="wc_result_units" > </td>
+                </tr> 
+                <tr>
+                  <td> <div id="body"> Body:</div>  <div id="repeats"> Repeats: </div> </td>
+                  <td id="rep_results"> </td> 
+                  <td id="result_units"></td>
+                </tr>
+                <tr>
+                  <td id="cooldown"> Cooldown: </td> 
+                  <td id="cd_units"></td>
+                  <td class="wc_result_units" > </td>
+                </tr>
+                  
+              </table>
+              <button type="submit">COMPLETE RUN</button> 
+                  
+              </form>
+      </div>
+      </div>
+      </div>
+      </div> 
+
+
+    <script>
+    
+    
+
+    document.addEventListener('DOMContentLoaded', function() {
+      function updateResults(response) {
+        console.log(response)
+        console.log(response.layout.body)
+        const eventFormModal = document.querySelector("#event-form-modal");
+        const eventForm = document.querySelector("#event-form");
+        // $( eventForm ).data('response', response);
+        eventForm.setAttribute("action", `/enter_wo_results/${response.id}`);
+        // alert(`${response['layout']}`);  
+        $("#title").append(response.title);
+        $("#warmup").append(response.layout.warmup, response.layout.wc_units);
+        $("#body").append(response.layout.body, response.layout.wc_units);
+        $("#repeats").append(response.layout.repeats);
+        $("#cooldown").append(response.layout.cooldown, response.layout.wc_units);
+        const repetition = Number(response.layout.repeats)
+
+        if (response.layout.units == "min"){
+          for (let rep = 0; rep < repetition; rep++) {
+          $("#rep_results").append(`<input type="number" name="body-result${rep}" step=".01" min="0" width="200" required><br>`);
+        } 
+        $("#result_units").append(`<select name="result_units">
+                <option value="mi"> Miles </option>
+                <option value="km"> Kilometers </option>
+                <option value="m"> meters </option>
+            </select> `);
+        }
+        else {
+          for (let rep = 0; rep < repetition; rep++) {
+          $("#rep_results").append(`<input type="number" name="min-body-result${rep}" width="100"required />minutes
+            <input type="number" name="sec-body-result${rep}" width="100" value="0" min="0" required />seconds<br>`);
+        }
+        $("#result_units").append('<input type="hidden" name="result_units value="sec" />')
+        }
+
+        if (response.layout.wc_units == "min"){
+          $('#wu_units').append('<input type=number name=wu required>');
+          $('#cd_units').append('<input type=number name=cd required>');
+
+          $(".wc_result_units").append(`<select name="wc_result_units">
+                <option value="mi"> Miles </option>
+                <option value="km"> Kilometers </option>
+                <option value="m"> meters </option>
+            </select> `);
+        } 
+        else {
+          $("#wu_units").append(`<input type="number" name="min-wu-result" width="100" required> minutes
+            <input type="number" name="sec-wu-result" width="100" value="0" min="0" required/>seconds<br>`);
+
+          $("#cd_units").append(`<input type="number" name="min-cd-result" width="100" required/> minutes
+            <input type="number" name="sec-cd-result" width="100" value="0" min="0" required/>seconds<br>`);
+          $(".wc_result_units").append('<input type="hidden" name="wc_result_units value="sec"/>');
+        }
+       
+        // for (let rep = 0; rep < repetition; rep++) {
+        //   $("#rep_results").append(`<input type="number" name="body-result${rep}" required><br>`)
+        // } 
+        // if (response.layout.units == "min"){}
+        // else {}
+        $("#event-form-modal").modal()
+        
+    }
+
+      const workouts = {{ workouts | tojson }};
+      // console.log('YAYYY', workouts[0]['wolayout'])
+      if (workouts != null) {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+        eventClick: function(info) {
+          info.jsEvent.preventDefault();
+          var eventObj = info.event;
+          let data = {'id': eventObj.id}
+          $.get('/workout_event.json', data, updateResults);
+
+        },
+
+        defaultView: 'dayGridMonth',
+        defaultDate: workouts[0]['start'],
+        header: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        timeZone: 'UTC',
+        events: workouts 
+      })
+    calendar.render();
+    }
+    })
+
+
+
+    </script> 
 
 
 {% endblock %}
