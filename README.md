@@ -1,4 +1,4 @@
-# HB-Project
+# Workout-My-Workout
 running-training-schedule-generator/tracker
 
 # Summary:
