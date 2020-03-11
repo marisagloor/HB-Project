@@ -194,7 +194,7 @@ class CompletedWorkout(db.Model):
                                backref=db.backref("results",
                                                   order_by=created_at))
     # move this relationship to Workout class
-    # calendar = db.relationship("Calendar",
+    # calendar = db.relationship("Calendar", secondary="workouts"
     #                            backref=db.backref("results",
     #                                               order_by=created_at))
     

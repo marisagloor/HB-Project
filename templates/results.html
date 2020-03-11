@@ -4,16 +4,15 @@
   <h2>Workout Results</h2>
   {% for spec in specs %}
     <li>
-      <a>
-        {{ spec.spec_id }} {{ spec.title }} 
+      <a class="specs" id="{{ spec.spec_id }}"> {{ spec.title }} 
       </a>
     </li>
     
   {% endfor %}
 
   <div class="results-chart">
-    <canvas id="lineChart"></canvas>
-    <div id="lineLegend" class="chart-legend"></div>
+    <canvas id="scatterChart"></canvas>
+    <div id="scatterLegend" class="chart-legend"></div>
   </div>  
 
 
@@ -23,18 +22,18 @@
     };
 
     // Make Donut Chart of percent of different types of Melons
-    let ctx_line = $("#lineChart").get(0).getContext("2d");
-
-    $.get("/results.json", function (data) {
-      let myLineChart = new Chart(ctx_line, {
-                                  type: 'line',
+    let ctx_line = $("#scatterChart").get(0).getContext("2d");
+    $('.specs').on('click', (evt) => {
+    $.get(`/results.json/${evt.target.id}`, function (data) {
+      let myScatterChart = new Chart(ctx_line, {
+                                  type: 'scatter',
                                   data: data,
                                   options: options
                                   });
-      $('#donutLegend').html(myDonutChart.generateLegend());
-
-      
+      $('#scatterLegend').html(myScatterChart.generateLegend());
     });
+    })
+    
 
 
   </script>

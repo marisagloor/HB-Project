@@ -298,8 +298,8 @@ def get_chartable_wo():
     """Gets users specific workouts that have multiple results"""
     user = User.query.get(session.get('user_id'))
     # for spec in user.specs:
-    #     if len(spec.results) > 1:
-            # return jsonify(get_result_data(spec.spec_id))
+    #     if spec.results:
+    #         return jsonify(get_result_data(spec.spec_id))
 
     return render_template("results.html",
                             specs=user.specs)
@@ -314,22 +314,23 @@ def get_result_data(spec_id):
     # BAD RUNTIME - OPTIMIZE
     for i, result in enumerate(spec.results):
         x_axis.append(i)
-        results.append({
-            "body": result.workout.layout["body"],
-            "bunits": result.workout.layout['units'],
-            "result": result.result_values['results'],
-            "runits": result.result_values['units']
-            })
-        data_dict['labels'].append(f"{result.created_at}")
-        data_dict['data'].append(result.result_values['results'][0])
+        # x_axis.append(f"{result.created_at}")
+        # results.append({
+        #     "body": result.workout.layout["body"],
+        #     "bunits": result.workout.layout['units'],
+        #     "result": result.result_values['results'],
+        #     "runits": result.result_values['units']
+        #     })
+        for r in result.result_values['results']:
+            results.append({'x':i, 'y': r/60})
+        # x_axis.append(f"{result.created_at}")
+        # data_dict['data'].append(result.result_values['results'][0])
 
     data_dict = {
                 "labels": x_axis,
                 "datasets": [   { "data": results,
-                    "backgroundColor": ["#FF6384",
-                            "#36A2EB",],
-                    "hoverBackgroundColor": ["#FF6384",
-                            "#36A2EB",] }     ]
+                    "backgroundColor": '#8626e5a6',
+                    "hoverBackgroundColor": '#e5266da6' }     ]
             }
 
     return jsonify(data_dict)
