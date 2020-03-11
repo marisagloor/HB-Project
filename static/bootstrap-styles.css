@@ -3,9 +3,9 @@
 html {
     background: url(ripples.png) center center;
     background-color: #f3a19975;;
-    background-repeat: repeat-y;
+    background-repeat: repeat-y repeat-x;
     /*background-color: red;*/
-    background-size: cover;
+    /*background-size: cover;*/
 
 }
 body{
@@ -42,9 +42,9 @@ h2 {
 
 .cal-container {
     background: url(cork-board.png) center center;
-    background-repeat: repeat-y;
+    background-repeat: repeat-y repeat-x;
     background-color: #f3a199;
-    background-size: cover;
+    /*background-size: cover;*/
     padding: 20px;
     border-style: solid;
     border-width: 35px;
@@ -53,9 +53,9 @@ h2 {
 
 #calendar{
     background: url(ep_naturalwhite.png) center center;
-    background-repeat: repeat-y;
+    background-repeat: repeat-y repeat-x;
     /*background-color: red;*/
-    background-size: cover;
+    /*background-size: cover;*/
 }
 
 #home_img {
