@@ -2,7 +2,7 @@
 {% block content %}
 <h2>New Calendar</h2>
 
-{% if session['login_status'] == True %}
+{% if session.get('user_id') %}
     <form action="/add_calendar" method="POST" required>
         Title: <input type="text" name="title" required><br><br>
              
