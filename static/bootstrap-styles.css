@@ -1,7 +1,7 @@
 /*   Sitewide  */
 
 html {
-    background: url(ripples.png) center center;
+    background: url(img/ripples.png) center center;
     background-color: #f3a19975;;
     background-repeat: repeat-y repeat-x;
     /*background-color: red;*/
@@ -15,7 +15,7 @@ body{
 }
 
 .navbar {
-    background: url(prism.png);
+    background: url(img/prism.png);
     color: white;
     border-radius: 0px;
 }
@@ -41,7 +41,7 @@ h2 {
 }
 
 .cal-container {
-    background: url(cork-board.png) center center;
+    background: url(img/cork-board.png) center center;
     background-repeat: repeat-y repeat-x;
     background-color: #f3a199;
     /*background-size: cover;*/
@@ -52,14 +52,14 @@ h2 {
 }
 
 #calendar{
-    background: url(ep_naturalwhite.png) center center;
+    background: url(img/ep_naturalwhite.png) center center;
     background-repeat: repeat-y repeat-x;
     /*background-color: red;*/
     /*background-size: cover;*/
 }
 
 #home_img {
-    background-image: url(home.jpg) center center;
+    background-image: url(img/home.jpg) center center;
     background-repeat: repeat-y;
 
 }
