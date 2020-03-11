@@ -32,11 +32,9 @@ def index():
     user = None
     cal = None
     wo_dict_list = None
-    if not 'login_status' in session:
-        session['login_status'] = False
-    if 'user_id' in session:
+    if session.get('user_id'):
         user = User.query.get(session['user_id'])
-        if len(user.calendars) > 0:
+        if user.calendars:
             cal = user.calendars[-1]
             wo_dict_list = cal.create_cal_wo_dict()
 
@@ -53,16 +51,22 @@ def register_form():
 @app.route('/register', methods=['POST'])
 def process_registration():
     """Adds user to the db from the signup form"""
+    if session.get('user_id'):
+        flash("please logout to register")
+        redirect('/')
 
     name = request.form.get('name')
     password = request.form.get('password')
 
     # User objects have a name password and user_id -> this auto increments
+    if User.query.filter_by(name=name).first():
+        flash("Please choose another username")
+        redirect('/register')
+
     user = User(name=name, password=password)
 
     db.session.add(user)
     db.session.commit()
-    session['login_status'] = True
     #HTML displays information conditionally based on this cookie
     # logged in - links for workouts, calendars etc
 
@@ -142,7 +146,7 @@ def add_bwo_layout_choices(base_id):
     wucd = int(request.form.get('wu_cd'))
     wc_units = request.form.get('wc_units')
 
-    base_wo.specs.append(Specifications(user_id=session['user_id'], title=title, body=body, units=units,
+    base_wo.specs.append(Specifications(user_id=session.get('user_id'), title=title, body=body, units=units,
                                      repeats=repeats, warmup=wucd, cooldown=wucd, wc_units=wc_units))
 
     db.session.commit()
@@ -159,7 +163,7 @@ def calendar_form():
     # pass in user with the potential of giving the user the option of 
     # specifying which base_workouts to use in their calendar schedule - currently not an option
     return render_template('create_calendar_form.html',
-                            user=User.query.get(session['user_id']))
+                            user=User.query.get(session.get('user_id')))
 
 
 @app.route('/add_calendar', methods=['POST'])
@@ -167,7 +171,7 @@ def create_calendar():
     """Instantiate calendar and generate associated workout instances"""
 
     title = request.form.get('title')
-    cal = Calendar(user_id=session['user_id'], title=title)
+    cal = Calendar(user_id=session.get('user_id'), title=title)
     db.session.add(cal)
     db.session.commit()
     # instantiated calendar does not have columns for start-end dates ->
@@ -188,7 +192,7 @@ def create_calendar():
         # these match the column names for base_workout
         weekday_str = datetime.datetime.strftime(curr_start, '%a').lower()
 
-        base_workouts = BaseWorkout.get_by_weekday(session['user_id'], weekday_str)
+        base_workouts = BaseWorkout.get_by_weekday(session.get('user_id'), weekday_str)
         # gets all base workouts for a user where the day of the week is true
 
         # chooses one baseworkout to generate a workout from
@@ -203,7 +207,7 @@ def create_calendar():
 def view_calendars():
     """Show all of user's calendar"""
 
-    calendars = Calendar.query.filter_by(user_id=session['user_id']).all()
+    calendars = Calendar.query.filter_by(user_id=session.get('user_id')).all()
 
     return render_template('calendars.html',
                             calendars=calendars,)
@@ -282,7 +286,7 @@ def enter_results(wo_id):
     results = {'warmup': warmup, 'cooldown': cooldown, 'wc_units': wc_units, 'body': workout.layout['body'], 'units': units, 'results': reps}
 
     result = workout.result.append(CompletedWorkout(result_values=results, 
-                            user_id=session['user_id'], title=workout.title, 
+                            user_id=session.get('user_id'), title=workout.title, 
                             spec_id=workout.spec_id))
     db.session.commit()
 
@@ -292,7 +296,7 @@ def enter_results(wo_id):
 @app.route('/repeated_workouts')
 def get_chartable_wo():
     """Gets users specific workouts that have multiple results"""
-    user = User.query.get(session['user_id'])
+    user = User.query.get(session.get('user_id'))
     # for spec in user.specs:
     #     if len(spec.results) > 1:
             # return jsonify(get_result_data(spec.spec_id))
@@ -337,37 +341,39 @@ def login_form():
     return render_template('login_page.html')
 
 
-@app.route('/check_login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def check_login():
     """Checks for login attempt in users and logs info in session"""
-    name = request.args.get('name')
-    password = request.args.get('password')
 
-    try:
-        user = User.query.filter(User.name == name).one()
-        # user = User.query.get(user_id)
+    if session.get('user_id'):
+        flash("please logout to login")
+        redirect('/')
 
+    name = request.form.get('name')
+    password = request.form.get('password')
+
+    user = User.query.filter(User.name == name).first()
+
+    if user:
         if user.password == password:
         #flash message about success
             session['user_id'] = user.user_id
-            session['login_status'] = True
             flash("Login Successful")
             # return redirect(f"/users/{user.user_id}")
             return redirect('/')
         else:
             flash("Login Failed, invalid email or PASSWORD")
             return redirect('/login')
-    except NoResultFound:
-        flash("Login Failed, invalid EMAIL or password")
+    else:
+        flash("Login Failed, invalid USERNAME or password")
         return redirect('/login')
 
 
 @app.route('/logout')
 def logout():
     """Removes login info from session"""
-
-    del session['user_id']
-    session['login_status'] = False
+    if session.get('user_id'):
+        del session['user_id']
 
     return redirect('/')
         
